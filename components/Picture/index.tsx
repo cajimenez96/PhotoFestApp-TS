@@ -1,15 +1,18 @@
-import { CameraView, useCameraPermissions, CameraType, CameraPictureOptions, Camera, CameraCapturedPicture, useMicrophonePermissions } from 'expo-camera';
-import { useState, useRef, useEffect } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
-import * as FileSystem from 'expo-file-system';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useRef, useEffect } from 'react';
+import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
-import { cameraType } from '../../common/constants';
+import { takePicture } from './require';
+import useCamera from '../../hooks/useCamera';
+import { FLASHOFF } from '../../common/constants';
+import { cameraIcons } from '../../common/icons';
 
-export default function CameraPicture({ facing, setFacing, setCameraType }) {
+const CameraPicture = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
-  const cameraRef = useRef(null);
+  const cameraRef = useRef<CameraView>(null);
 
+  const { facing, toggleFlash, flash, toggleCameraType, toggleCameraFacing } = useCamera();
 
   useEffect(() => {
     if (!permission || !mediaLibraryPermission) {
@@ -25,70 +28,32 @@ export default function CameraPicture({ facing, setFacing, setCameraType }) {
   if (!permission.granted || !mediaLibraryPermission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera and record audio</Text>
-        <Button onPress={requestPermission} title="Grant camera permission" />
-        <Button onPress={requestMediaLibraryPermission} title="Grant media library permission" />
+        <View>
+          <Text>Para continuar, FestBook necesita permiso para acceder a su camara y grabar audio</Text>
+          <Button onPress={requestPermission} title='Grant camera permission' />
+          <Button onPress={requestMediaLibraryPermission} title='Grant media library permission' />
+        </View>
       </View>
     );
   }
 
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
-
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      try {
-        const options = {
-          quality: 1,
-          base64: true,
-          exif: true,
-          skipProcessing: true,
-        };
-        const picture = await cameraRef.current.takePictureAsync(options);
-        if (picture) {
-          const filename = FileSystem.documentDirectory + `photo_${Date.now()}.jpg`;
-          await FileSystem.copyAsync({
-            from: picture.uri,
-            to: filename,
-          });
-
-          if (!mediaLibraryPermission?.granted) {
-            const { status } = await requestMediaLibraryPermission();
-            if (status !== 'granted') {
-              console.error('Permission to access media library is required!');
-              return;
-            }
-          }
-
-          // Save the photo to the media library
-          const asset = await MediaLibrary.createAssetAsync(filename);
-          console.log(asset)
-          await MediaLibrary.createAlbumAsync('Expo', asset, false);
-          console.log('Photo saved to gallery:', asset.uri);
-        }
-      } catch (error) {
-        console.error('Error taking picture:', error);
-      }
-    }
-  };
-
-  const changeCameraType = () => {
-    setCameraType(current => (current === cameraType.picture ? cameraType.video : cameraType.picture))
-  }
-
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef} >
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef} flash={flash}>
+        <View style={styles.flashView}>
+          <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
+            {flash === FLASHOFF ? <Image style={styles.imgFlash} source={cameraIcons.flashOffImg}></Image> : <Image style={styles.imgFlash} source={cameraIcons.flashImg}></Image>}
+          </TouchableOpacity>
+        </View>
         <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
+            <Image style={styles.imgLateral} source={cameraIcons.recordingImg}></Image>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => takePicture(cameraRef, mediaLibraryPermission, requestMediaLibraryPermission)}>
+            <Image style={styles.imgDispatch} source={cameraIcons.dispatchPhotoImg}></Image>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={takePicture}>
-            <Text style={styles.text}>Take Picture</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={changeCameraType}>
-            <Text style={styles.text}>Record</Text>
+            <Image style={styles.imgLateral} source={cameraIcons.flipCameraImg}></Image>
           </TouchableOpacity>
         </View>
       </CameraView>
@@ -96,23 +61,9 @@ export default function CameraPicture({ facing, setFacing, setCameraType }) {
   );
 }
 
+export default CameraPicture;
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -120,21 +71,43 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
   },
+  flashView: {
+    alignItems: 'flex-end',
+    margin: 23,
+    marginTop: 25,
+  },
+  flashButton: {
+    width: 60,
+    padding: 5,
+  },
   buttonContainer: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
+    marginBottom: 34,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
   button: {
-    flex: 1,
-    alignSelf: 'flex-end',
     alignItems: 'center',
+    justifyContent: 'center',
+    height: 90,
+    marginHorizontal: 20,
   },
   text: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
   },
-
+  imgDispatch: {
+    height: 80,
+    width: 80,
+  },
+  imgLateral: {
+    height: 47,
+    width: 47,
+  },
+  imgFlash: {
+    height: 45,
+    width: 45,
+  },
 });
