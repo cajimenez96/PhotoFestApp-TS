@@ -1,7 +1,7 @@
 import React from 'react'
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet } from 'react-native';
 
-export default function CameraVideo() {
+const CameraVideo = () => {
   return (
     <View style={styles.container}>
       <Text>Welcome to camera video Screen</Text>
@@ -9,10 +9,12 @@ export default function CameraVideo() {
   )
 }
 
+export default CameraVideo;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column",
-    justifyContent: "center",
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
 });
