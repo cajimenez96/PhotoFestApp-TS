@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-// import CameraPicture from '../components/CameraPicture';
-import { cameraType } from '../../common/constants';
 import CameraVideo from '../../components/Video';
 import CameraPicture from '../../components/Picture';
+import { PICTURE } from '../../common/constants';
+import useCamera from '../../hooks/useCamera';
 
-export default function CameraScreen({ navigation }) {
-  const [facing, setFacing] = useState('back');
-  const [CameraType, setCameraType] = useState(cameraType.picture)
+const CameraScreen = () => {
+  const { cameraMode } = useCamera();
 
   return (
     <>
-      {CameraType === cameraType.picture ? <CameraPicture facing={facing} setFacing={setFacing} setCameraType={setCameraType} /> : <CameraVideo />}
+      {cameraMode === PICTURE ? <CameraPicture /> : <CameraVideo />}
     </>
   );
 }
+
+export default CameraScreen;
