@@ -10,20 +10,11 @@ const App = () => {
   return (
     <NavigationContainer>
       <StatusBar hidden={true} />
-      <Stack.Navigator>
-        <Stack.Screen name='Camera' component={CameraScreen} options={{ headerShown: false }} />
+      <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='Camera' component={CameraScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
 export default App;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

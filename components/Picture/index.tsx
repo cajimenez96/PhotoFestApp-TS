@@ -6,6 +6,7 @@ import { takePicture } from './require';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
+import { globalStyles } from '../../styles/globalStyles';
 
 const CameraPicture = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -27,7 +28,7 @@ const CameraPicture = () => {
 
   if (!permission.granted || !mediaLibraryPermission.granted) {
     return (
-      <View style={styles.container}>
+      <View style={[globalStyles.container, styles.container]}>
         <View>
           <Text>Para continuar, FestBook necesita permiso para acceder a su camara y grabar audio</Text>
           <Button onPress={requestPermission} title='Grant camera permission' />
@@ -38,14 +39,14 @@ const CameraPicture = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef} flash={flash}>
+    <View style={globalStyles.container}>
+      <CameraView style={globalStyles.container} facing={facing} ref={cameraRef} flash={flash}>
         <View style={styles.flashView}>
           <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
             {flash === FLASHOFF ? <Image style={styles.imgFlash} source={cameraIcons.flashOffImg}></Image> : <Image style={styles.imgFlash} source={cameraIcons.flashImg}></Image>}
           </TouchableOpacity>
         </View>
-        <View style={styles.buttonContainer}>
+        <View style={[globalStyles.container, styles.buttonContainer]}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
             <Image style={styles.imgLateral} source={cameraIcons.recordingImg}></Image>
           </TouchableOpacity>
@@ -65,11 +66,7 @@ export default CameraPicture;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
-  },
-  camera: {
-    flex: 1,
   },
   flashView: {
     alignItems: 'flex-end',
@@ -81,7 +78,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   buttonContainer: {
-    flex: 1,
     flexDirection: 'row',
     marginBottom: 34,
     alignItems: 'flex-end',
