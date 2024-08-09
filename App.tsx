@@ -9,7 +9,7 @@ const Stack = createStackNavigator();
 const App = () => {
   return (
     <NavigationContainer>
-      <StatusBar style="auto" />
+      <StatusBar hidden />
       <Stack.Navigator initialRouteName='Login' screenOptions={{headerShown: false}}>
         <Stack.Screen name='Login' component={QRScanner} />
         <Stack.Screen name='Camera' component={CameraScreen} />

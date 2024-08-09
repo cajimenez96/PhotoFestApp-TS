@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Vibration, Alert } from "react-native";
 import { CameraView, BarcodeScanningResult } from "expo-camera";
-import { IQRScanner } from "./QRScanner.type";
 import { globalStyles } from "../../styles/globalStyles";
 import { cameraIcons } from "../../common/icons";
 import { QRScannerData } from "./QRScanner.data";
 import { useNavigation } from "@react-navigation/native";
 
-const QRScanner: React.FC<IQRScanner> = () => {
+const QRScanner: React.FC = () => {
   const navigation = useNavigation();
   const [scanned, setScanned] = useState<boolean>(false);
   const [flash, setFlash] = useState<boolean>(false);
@@ -91,7 +90,7 @@ const styles = StyleSheet.create({
   },
   boxTranslucid: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 12
+    borderRadius: 12,
   },
   image: {
     width: 200,
@@ -104,10 +103,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     paddingHorizontal: 20,
-    paddingVertical: 10
+    paddingVertical: 10,
   },
   flash: {
     borderRadius: 100,
-    padding: 5
+    padding: 5,
   },
 });
