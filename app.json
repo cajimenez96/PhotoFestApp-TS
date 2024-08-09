@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "PhotoFestApp-TS",
+    "name": "FestBook",
     "slug": "PhotoFestApp-TS",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "auto",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -22,6 +22,17 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "$(PRODUCT_NAME) necesita acceso a tu cámara para poder funcionar",
+          "microphonePermission": "FestBook $(PRODUCT_NAME) necesita acceso a tu micrófono para poder funcionar",
+          "recordAudioAndroid": true
+        }
+      ]
+    ]
+
   }
 }
