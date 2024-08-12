@@ -1,7 +1,8 @@
 export const cameraIcons = {
-  flashImg: require('../assets/images/flashOn.png'),
-  flashOffImg: require('../assets/images/flashOff.png'),
-  recordingImg: require('../assets/images/recording.png'),
-  dispatchPhotoImg: require('../assets/images/dispatchPhoto.png'),
-  flipCameraImg: require('../assets/images/flipCamera.png'),
+  flashImg: require('../assets/picture/flashOn.png'),
+  flashOffImg: require('../assets/picture/flashOff.png'),
+  recordingImg: require('../assets/picture/recording.png'),
+  dispatchPhotoImg: require('../assets/picture/dispatchPhoto.png'),
+  flipCameraImg: require('../assets/picture/flipCamera.png'),
+  scannerImg: require('../assets/picture/scanner.png'),
 };
