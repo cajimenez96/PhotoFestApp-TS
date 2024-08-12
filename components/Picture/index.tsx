@@ -1,5 +1,5 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useRef, useEffect } from 'react';
+import { CameraView, useCameraPermissions, CameraOrientation } from 'expo-camera';
+import { useRef, useEffect, useState } from 'react';
 import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import { takePicture } from './require';
@@ -7,13 +7,14 @@ import useCamera from '../../hooks/useCamera';
 import { FLASHOFF } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
+import CameraButton from '../CameraButton';
 
 const CameraPicture = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView>(null);
-
   const { facing, toggleFlash, flash, toggleCameraType, toggleCameraFacing } = useCamera();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!permission || !mediaLibraryPermission) {
@@ -40,22 +41,31 @@ const CameraPicture = () => {
 
   return (
     <View style={globalStyles.container}>
-      <CameraView style={globalStyles.container} facing={facing} ref={cameraRef} flash={flash}>
+      <CameraView style={[globalStyles.container, globalStyles.padding]} facing={facing} ref={cameraRef} flash={flash} >
         <View style={styles.flashView}>
-          <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
-            {flash === FLASHOFF ? <Image style={styles.imgFlash} source={cameraIcons.flashOffImg}></Image> : <Image style={styles.imgFlash} source={cameraIcons.flashImg}></Image>}
-          </TouchableOpacity>
+          <CameraButton
+            onPress={toggleFlash}
+            source={flash === FLASHOFF ? cameraIcons.flashOffImg : cameraIcons.flashImg}
+            typeDispatch={false}
+          />
         </View>
         <View style={[globalStyles.container, styles.buttonContainer]}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
-            <Image style={styles.imgLateral} source={cameraIcons.recordingImg}></Image>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => takePicture(cameraRef, mediaLibraryPermission, requestMediaLibraryPermission)}>
-            <Image style={styles.imgDispatch} source={cameraIcons.dispatchPhotoImg}></Image>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Image style={styles.imgLateral} source={cameraIcons.flipCameraImg}></Image>
-          </TouchableOpacity>
+          <CameraButton
+            onPress={toggleCameraType}
+            source={cameraIcons.recordingImg}
+            typeDispatch={false}
+          />
+          <CameraButton
+            onPress={loading ? undefined : () => takePicture({ cameraRef, mediaLibraryPermission, requestMediaLibraryPermission, setLoading })}
+            source={cameraIcons.dispatchPhotoImg}
+            typeDispatch={true}
+            disableImage={loading}
+          />
+          <CameraButton
+            onPress={toggleCameraFacing}
+            source={cameraIcons.flipCameraImg}
+            typeDispatch={false}
+          />
         </View>
       </CameraView>
     </View>
@@ -70,16 +80,12 @@ const styles = StyleSheet.create({
   },
   flashView: {
     alignItems: 'flex-end',
-    margin: 23,
-    marginTop: 25,
   },
   flashButton: {
     width: 60,
-    padding: 5,
   },
   buttonContainer: {
     flexDirection: 'row',
-    marginBottom: 34,
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
@@ -88,6 +94,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 90,
     marginHorizontal: 20,
+  },
+  disabledImage: {
+    opacity: 0.5,
   },
   text: {
     fontSize: 24,

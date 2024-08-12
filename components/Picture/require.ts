@@ -1,8 +1,9 @@
-import { CameraView } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import { takePictureProps } from './Picture.type';
 
-export const takePicture = async (cameraRef: React.RefObject<CameraView>, mediaLibraryPermission: MediaLibrary.PermissionResponse, requestMediaLibraryPermission: () => Promise<MediaLibrary.PermissionResponse>) => {
+export const takePicture = async ({cameraRef, mediaLibraryPermission, requestMediaLibraryPermission, setLoading}:takePictureProps) => {
+  setLoading(true)
   if (cameraRef.current) {
     try {
       const options = {
@@ -26,12 +27,13 @@ export const takePicture = async (cameraRef: React.RefObject<CameraView>, mediaL
           }
         }
         const asset = await MediaLibrary.createAssetAsync(filename);
-        console.log(asset)
         await MediaLibrary.createAlbumAsync('Expo', asset, false);
-        console.log('Photo saved to gallery:', asset.uri);
       }
     } catch (error) {
-      console.error('Error taking picture:', error);
+      setLoading(false)
+    }
+    finally {
+      setLoading(false)
     }
   }
 };
