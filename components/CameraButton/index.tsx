@@ -1,10 +1,9 @@
 import { Image, StyleSheet, TouchableOpacity } from "react-native"
 import { CameraButtonProps } from "./CameraButton.type";
 
-const CameraButton = ({ onPress, source, typeDispatch, onPressPromise, disableImage }: CameraButtonProps) => {
-
+const CameraButton = ({ onPress, source, typeDispatch, disableImage }: CameraButtonProps) => {
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress ?? onPressPromise}>
+    <TouchableOpacity style={styles.button} onPress={onPress}>
       <Image style={[!typeDispatch ? styles.icon : styles.iconDispatch, disableImage && styles.disabledImage]} source={source} />
     </TouchableOpacity>
   )
