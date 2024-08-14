@@ -5,4 +5,7 @@ export const cameraIcons = {
   dispatchPhotoImg: require('../assets/picture/dispatchPhoto.png'),
   flipCameraImg: require('../assets/picture/flipCamera.png'),
   scannerImg: require('../assets/picture/scanner.png'),
+  pictureMode: require('../assets/picture/pictureMode.png'),
+  startRecording: require('../assets/picture/startRecording.png'),
+  onRecording: require('../assets/picture/onRecording.png'),
 };

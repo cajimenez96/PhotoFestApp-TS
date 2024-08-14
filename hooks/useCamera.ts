@@ -4,30 +4,50 @@ import { BACK, FLASHOFF, FLASHON, FRONT, PICTURE, VIDEO } from '../common/consta
 
 const useCamera = () => {
   const [facing, setFacing] = useState<CameraType>(BACK);
-  const [cameraMode, setCameraMode] = useState<CameraMode>(PICTURE);
   const [flash, setFlash] = useState<FlashMode>(FLASHOFF);
+  const [mode, setMode] = useState<CameraMode>(PICTURE);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
 
   const toggleFlash = () => {
     setFlash(current => (current === FLASHOFF ? FLASHON : FLASHOFF));
   }
 
   const toggleCameraFacing = () => {
-    setFacing(current => (current === BACK ? FRONT : BACK));
-  }
-
-  const toggleCameraType = () => {
-    setCameraMode(current => (current === PICTURE ? VIDEO : PICTURE));
+    setFacing(current => {
+      const newFacing = current === BACK ? FRONT : BACK;
+      if (flash === FLASHON) {
+        setFlash(FLASHOFF);
+        setTimeout(() => {
+          setFlash(FLASHON); 
+        }, 100);
+      }
+      return newFacing;
+    });
+  };
+  const toggleCameraMode = () => {
+    setMode(current => {
+      const newMode = current === PICTURE ? VIDEO : PICTURE
+      if (flash === FLASHON) {
+        setFlash(FLASHOFF);
+        setTimeout(() => {
+          setFlash(FLASHON);
+        }, 100);
+      }
+      return newMode
+    });
   }
 
   return {
     facing,
     setFacing,
-    cameraMode,
     toggleCameraFacing,
-    setCameraMode,
-    toggleCameraType,
     toggleFlash,
-    flash
+    flash,
+    mode,
+    setMode,
+    isRecording,
+    setIsRecording,
+    toggleCameraMode
   }
 }
 
