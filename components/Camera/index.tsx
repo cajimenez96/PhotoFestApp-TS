@@ -3,10 +3,13 @@ import { CameraView } from 'expo-camera';
 import { globalStyles } from '../../styles/globalStyles';
 import { ICamera } from './Camera.type';
 
-
 const Camera: React.FC<ICamera> = ({
   children,
   torch = false,
+  mode,
+  facing,
+  flash,
+  ref,
   handleBarCodeScanned,
 }) => {
   return (
@@ -18,6 +21,10 @@ const Camera: React.FC<ICamera> = ({
       style={[globalStyles.container, globalStyles.padding]}
       autofocus="on"
       enableTorch={torch}
+      mode={mode}
+      facing={facing}
+      flash={flash}
+      ref={ref}
     >
       {children}
     </CameraView>
