@@ -1,17 +1,16 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { CameraView } from 'expo-camera';
 import { globalStyles } from '../../styles/globalStyles';
 import { ICamera } from './Camera.type';
 
-const Camera: React.FC<ICamera> = ({
+const Camera = forwardRef<CameraView, ICamera>(({
   children,
   torch = false,
   mode,
   facing,
   flash,
-  ref,
   handleBarCodeScanned,
-}) => {
+}, ref) => {
   return (
     <CameraView
       onBarcodeScanned={handleBarCodeScanned}
@@ -28,7 +27,7 @@ const Camera: React.FC<ICamera> = ({
     >
       {children}
     </CameraView>
-  )
-}
+  );
+});
 
 export default Camera;
