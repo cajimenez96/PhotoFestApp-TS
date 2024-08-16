@@ -10,6 +10,7 @@ import CameraButton from '../../components/CameraButton';
 import * as FileSystem from 'expo-file-system';
 import Camera from '../../components/Camera';
 import { uploadFile } from '../../firebase/firebase.config';
+import { sendToBackend } from './require';
 
 const CameraScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -80,7 +81,10 @@ const CameraScreen = () => {
           await FileSystem.copyAsync({ from: picture.uri, to: filename });
           await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
 
-          await uploadFile(picture.uri, namePhoto);
+          const downloadURL = await uploadFile(picture.uri, namePhoto);
+          if (downloadURL) {
+            await sendToBackend(downloadURL, picture.width, picture.height);
+          }
         }
       } catch (error) {
         console.error(error);
@@ -103,7 +107,10 @@ const CameraScreen = () => {
             await FileSystem.copyAsync({ from: video.uri, to: filename });
             await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
 
-            await uploadFile(video.uri, videoName);
+            const downloadURL = await uploadFile(video.uri, videoName);
+            if (downloadURL) {
+              await sendToBackend(downloadURL);
+            }
           }
         }
       } catch (error) {
