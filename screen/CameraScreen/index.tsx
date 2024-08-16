@@ -9,6 +9,7 @@ import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
 import * as FileSystem from 'expo-file-system';
 import Camera from '../../components/Camera';
+import { uploadFile } from '../../firebase/firebase.config';
 
 const CameraScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -53,9 +54,14 @@ const CameraScreen = () => {
     const asset = await MediaLibrary.createAssetAsync(filename);
     await MediaLibrary.createAlbumAsync('Expo', asset, false);
   };
-  
+
+
   const takePicture = async () => {
-    setLoading(true);
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
     if (cameraRef.current) {
       try {
         const options = {
@@ -64,21 +70,24 @@ const CameraScreen = () => {
           exif: true,
           skipProcessing: true,
         };
-  
+
         const picture = await cameraRef.current.takePictureAsync(options);
+
         if (picture) {
-          const filename = FileSystem.documentDirectory + `photo_${Date.now()}.jpg`;
+          const namePhoto = `photo_${Date.now()}.jpg`
+          const filename = FileSystem.documentDirectory + namePhoto;
+
           await FileSystem.copyAsync({ from: picture.uri, to: filename });
           await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
+
+          await uploadFile(picture.uri, namePhoto);
         }
       } catch (error) {
         console.error(error);
-      } finally {
-        setLoading(false);
       }
     }
   };
-  
+
   const takeVideo = async () => {
     if (cameraRef.current) {
       try {
@@ -89,9 +98,12 @@ const CameraScreen = () => {
           setIsRecording(true);
           const video = await cameraRef.current.recordAsync();
           if (video) {
-            const filename = FileSystem.documentDirectory + `video_${Date.now()}.mp4`;
+            const videoName = `video_${Date.now()}.mp4`
+            const filename = FileSystem.documentDirectory + videoName;
             await FileSystem.copyAsync({ from: video.uri, to: filename });
             await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
+
+            await uploadFile(video.uri, videoName);
           }
         }
       } catch (error) {

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getStorage } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { VITE_API_KEY, VITE_AUTH_DOMAIN, VITE_PROJECT_ID, VITE_STORAGE_BUCKET, VITE_MESSAGING_SENDER_ID, VITE_APP_ID, VITE_MEASUREMENT_ID, } from "@env"
 
 const firebaseConfig = {
@@ -14,5 +14,24 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
+
+export async function uploadFile(fileUri: string, name: string) {
+  const response = await fetch(fileUri);
+  const blob = await response.blob();
+  
+  const storageRef = ref(storage, `uploads/${name}`);
+
+  try {
+    const snapshot = await uploadBytes(storageRef, blob);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    return downloadURL;
+  } catch (error) {
+    console.error('Error al subir el archivo:', error);
+  }
+}
+
+
+
 
 
