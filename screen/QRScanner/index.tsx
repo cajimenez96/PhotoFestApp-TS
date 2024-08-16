@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Vibration, Alert } from "react-native";
-import { CameraView, BarcodeScanningResult } from "expo-camera";
+import { BarcodeScanningResult } from "expo-camera";
 import { globalStyles } from "../../styles/globalStyles";
 import { cameraIcons } from "../../common/icons";
 import { QRScannerData } from "./QRScanner.data";
 import { useNavigation } from "@react-navigation/native";
+import Camera from "../../components/Camera";
 
 const QRScanner: React.FC = () => {
   const navigation = useNavigation();
@@ -16,24 +17,19 @@ const QRScanner: React.FC = () => {
     setFlash(!flash);
   }
 
-  const handleBarCodeScanned = ( {data}: BarcodeScanningResult ) => {
+  const barCodeScanned = ( {data}: BarcodeScanningResult ) => {
     setScanned(true);
+    console.log(data);
 
     try {
-      const parsedData = JSON.parse(data);
+      console.log(data);
 
-      if (parsedData) {
-        //Función a realizar con la información del QR
-        navigation.navigate('Camera');
-      } else {
-        alertError(QRScannerData.loginError)
-      }
-
+      if (data) navigation.navigate('Camera');
+      
+      
     } catch (error) {
-      alertError(QRScannerData.qrError)
-      console.log(error);      
-    }
-    finally {
+      console.log('se rompió')
+    } finally {
       setScanned(false);
     }
   };
@@ -45,18 +41,13 @@ const QRScanner: React.FC = () => {
   return (
     <View style={globalStyles.container}>
       {scanned ? (
-        <View style={[globalStyles.container, ]}>
+        <View style={[globalStyles.container, globalStyles.centered]}>
           <ActivityIndicator size="large" color="black" />
         </View>
       ) : (
-        <CameraView
-          onBarcodeScanned={handleBarCodeScanned}
-          barcodeScannerSettings={{
-            barcodeTypes: ["qr", "pdf417"],
-          }}
-          style={[globalStyles.container, globalStyles.padding]}
-          autofocus="on"
-          enableTorch={flash}
+        <Camera
+          handleBarCodeScanned={barCodeScanned}
+          torch={flash}
         >
           <View style={{alignItems: 'flex-end'}}>
             <TouchableOpacity onPress={handleFlash}>
@@ -73,7 +64,7 @@ const QRScanner: React.FC = () => {
               <Text style={styles.text}>{QRScannerData.text}</Text>
             </View>
           </View>
-        </CameraView>
+        </Camera>
       )}
     </View>
   );
