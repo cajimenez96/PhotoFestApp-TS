@@ -7,4 +7,5 @@ declare module '@env' {
   export const VITE_APP_ID = string;
   export const VITE_MEASUREMENT_ID = string;
   export const VITE_API_URL = string;
+  export const TOKEN_API = string;
 }

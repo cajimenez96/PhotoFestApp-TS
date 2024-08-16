@@ -10,7 +10,7 @@ export async function sendToBackend(downloadURL: string, width?: number, height?
   }
   return await MediafileRequest(payload)
     .then((response) => {
-      console.log(response)
+      console.log(response.message)
     })
     .catch((error) => {
       console.log(error?.response.data)

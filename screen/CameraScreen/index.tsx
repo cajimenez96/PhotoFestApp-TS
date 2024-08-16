@@ -7,10 +7,8 @@ import { FLASHOFF } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
-import * as FileSystem from 'expo-file-system';
 import Camera from '../../components/Camera';
-import { uploadFile } from '../../firebase/firebase.config';
-import { sendToBackend } from './require';
+import { takePicture, takeVideo } from '../../helpers/cameraActions';
 
 const CameraScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -44,87 +42,11 @@ const CameraScreen = () => {
     );
   }
 
-  const saveToLibrary = async (filename: string, mediaLibraryPermission: any, requestMediaLibraryPermission: () => Promise<any>) => {
-    if (!mediaLibraryPermission.granted) {
-      const { status } = await requestMediaLibraryPermission();
-      if (status !== 'granted') {
-        console.error('Permission to access media library is required!');
-        return;
-      }
-    }
-    const asset = await MediaLibrary.createAssetAsync(filename);
-    await MediaLibrary.createAlbumAsync('Expo', asset, false);
-  };
-
-
-  const takePicture = async () => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    if (cameraRef.current) {
-      try {
-        const options = {
-          quality: 1,
-          base64: true,
-          exif: true,
-          skipProcessing: true,
-        };
-
-        const picture = await cameraRef.current.takePictureAsync(options);
-
-        if (picture) {
-          const namePhoto = `photo_${Date.now()}.jpg`
-          const filename = FileSystem.documentDirectory + namePhoto;
-
-          await FileSystem.copyAsync({ from: picture.uri, to: filename });
-          await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
-
-          const downloadURL = await uploadFile(picture.uri, namePhoto);
-          if (downloadURL) {
-            await sendToBackend(downloadURL, picture.width, picture.height);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  };
-
-  const takeVideo = async () => {
-    if (cameraRef.current) {
-      try {
-        if (isRecording) {
-          cameraRef.current.stopRecording();
-          setIsRecording(false);
-        } else {
-          setIsRecording(true);
-          const video = await cameraRef.current.recordAsync();
-          if (video) {
-            const videoName = `video_${Date.now()}.mp4`
-            const filename = FileSystem.documentDirectory + videoName;
-            await FileSystem.copyAsync({ from: video.uri, to: filename });
-            await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
-
-            const downloadURL = await uploadFile(video.uri, videoName);
-            if (downloadURL) {
-              await sendToBackend(downloadURL);
-            }
-          }
-        }
-      } catch (error) {
-        console.error(error);
-        setIsRecording(false);
-      }
-    }
-  };
-
   const pictureOrVideo = () => {
     if (mode === "picture") {
-      loading ? undefined : takePicture()
+      loading ? undefined : takePicture(setLoading, cameraRef, mediaLibraryPermission, requestMediaLibraryPermission)
     } else {
-      takeVideo()
+      takeVideo(cameraRef, isRecording, setIsRecording, mediaLibraryPermission, requestMediaLibraryPermission)
     }
   }
 
