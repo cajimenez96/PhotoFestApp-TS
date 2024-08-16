@@ -9,7 +9,7 @@ export const globalStyles = StyleSheet.create({
     alignItems: 'center',
   },
   padding: {
-    paddingVertical: 80,
+    paddingVertical: '10%',
     paddingHorizontal: 20,
   },
   icon: {
