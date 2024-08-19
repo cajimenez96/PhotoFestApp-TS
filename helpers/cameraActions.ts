@@ -74,7 +74,6 @@ export const takePicture = async (
   }
 };
 
-
 export const takeVideo = async (
   cameraRef: React.MutableRefObject<CameraView | null>,
   isRecording: boolean,
