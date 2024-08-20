@@ -14,7 +14,7 @@ const Axios = axios.create({
 Axios.interceptors.request.use(
   (config) => {
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers['Authorization'] = token;
     } else {
       console.error("Token no disponible");
     }

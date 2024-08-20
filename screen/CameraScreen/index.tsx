@@ -9,6 +9,7 @@ import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
 import Camera from '../../components/Camera';
 import { takePicture, takeVideo } from '../../helpers/cameraActions';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 const CameraScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -17,14 +18,43 @@ const CameraScreen = () => {
   const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraMode, mode, isRecording, setIsRecording } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isPortrait, setIsPortrait] = useState<number | null>();
+
+  const {PORTRAIT_UP, LANDSCAPE_LEFT, LANDSCAPE_RIGHT} = ScreenOrientation.Orientation
 
   useEffect(() => {
     if (!permission || !mediaLibraryPermission || !microphonePermission) {
       requestPermission();
       requestMediaLibraryPermission();
       requestMicrophonePermission();
+
+      const subscribeOrientationChange = async () => {
+        const orientation = await ScreenOrientation.getOrientationAsync();
+        handleOrientationChange(orientation);
+    
+        const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
+          handleOrientationChange(orientationInfo.orientation);
+        });
+        return () => {
+          ScreenOrientation.removeOrientationChangeListener(subscription);
+        };
+      };
+    
+      subscribeOrientationChange();
     }
   }, []);
+
+  const handleOrientationChange = (orientation: ScreenOrientation.Orientation) => {
+    if (orientation === PORTRAIT_UP) {
+      setIsPortrait(PORTRAIT_UP);
+    } else if (orientation === LANDSCAPE_LEFT) {
+      setIsPortrait(LANDSCAPE_LEFT);
+    } else if (orientation === LANDSCAPE_RIGHT) {
+      setIsPortrait(LANDSCAPE_RIGHT);
+    } else {
+      setIsPortrait(null);
+    }
+  };
 
   if (!permission || !mediaLibraryPermission || !microphonePermission) {
     return <View />;
@@ -59,14 +89,34 @@ const CameraScreen = () => {
         flash={flash}
         torch={mode === "video" && flash === "on"}
       >
-        <View style={styles.flashView}>
+        <View
+          style={
+            isPortrait === PORTRAIT_UP
+              ? styles.flashViewPortait
+              : isPortrait === LANDSCAPE_LEFT
+              ? styles.flashViewlandscapeLeft
+              : isPortrait === LANDSCAPE_RIGHT
+              ? styles.flashViewlandscapeRigth
+              : null
+          }
+        >
           <CameraButton
             onPress={toggleFlash}
             source={flash === FLASHOFF ? cameraIcons.flashOffImg : cameraIcons.flashImg}
             typeDispatch={false}
           />
         </View>
-        <View style={[globalStyles.container, styles.buttonContainer]}>
+        <View
+          style={
+            isPortrait === PORTRAIT_UP
+              ? styles.buttonContainerPortrait
+              : isPortrait === LANDSCAPE_LEFT
+              ? styles.buttonContainerLandscape
+              : isPortrait === LANDSCAPE_RIGHT
+              ? styles.buttonContainerLandscapeRigth
+              : null
+          }
+        >
           <CameraButton
             onPress={isRecording ? undefined : toggleCameraMode}
             source={mode === "picture" ? cameraIcons.recordingImg : cameraIcons.pictureMode}
@@ -89,6 +139,7 @@ const CameraScreen = () => {
       </Camera>
     </View>
   );
+  
 }
 
 export default CameraScreen;
@@ -96,17 +147,47 @@ export default CameraScreen;
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
+    flex: 1,
   },
-  flashView: {
-    alignItems: 'flex-end',
+  flashViewPortait: {
+    alignItems: "flex-end",
+  },
+  flashViewlandscapeLeft: {
+    position: 'absolute',
+    top: 20,
+    right: 30,
+  },
+  flashViewlandscapeRigth: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+  },
+  buttonContainerPortrait: {
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  buttonContainerLandscape: {
+    position: 'absolute',
+    right: "84%",
+    top: 0,
+    bottom: 0,
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  buttonContainerLandscapeRigth: {
+    position: 'absolute',
+    left: "84%",
+    top: 0,
+    bottom: 0,
+    flexDirection: "column-reverse",
+    justifyContent: 'center',
   },
   flashButton: {
     width: 60,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
   },
   button: {
     alignItems: 'center',
@@ -135,3 +216,4 @@ const styles = StyleSheet.create({
     width: 45,
   },
 });
+
