@@ -6,6 +6,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { CameraView } from 'expo-camera';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { MediaTypePicture, MediaTypeVideo } from '../common/constants';
 
 const saveToLibrary = async (filename: string, mediaLibraryPermission: any, requestMediaLibraryPermission: () => Promise<any>) => {
   if (!mediaLibraryPermission.granted) {
@@ -17,6 +18,7 @@ const saveToLibrary = async (filename: string, mediaLibraryPermission: any, requ
   }
   const asset = await MediaLibrary.createAssetAsync(filename);
   await MediaLibrary.createAlbumAsync('FestBook', asset, false);
+  return asset;
 };
 
 export const takePicture = async (
@@ -25,10 +27,11 @@ export const takePicture = async (
   mediaLibraryPermission: MediaLibrary.PermissionResponse,
   requestMediaLibraryPermission: () => Promise<MediaLibrary.PermissionResponse>
 ) => {
-  setLoading(true)
+  setLoading(true);
   setTimeout(() => {
     setLoading(false);
-  }, 2000);
+  }, 1500);
+
   if (cameraRef.current) {
     try {
       const options = {
@@ -42,30 +45,37 @@ export const takePicture = async (
 
       if (picture) {
         const orientation = await ScreenOrientation.getOrientationAsync();
+        let rotation = 0;
 
-        let manipulatedPicture = picture.uri;
-        if (orientation === 3 || orientation === 4) {  
-          const { uri: rotatedUri } = await ImageManipulator.manipulateAsync(
-            picture.uri,
-            [{ rotate: orientation === 3 ? 90 : -90 }],
-            { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
-          );
-          manipulatedPicture = rotatedUri;
-          
-          const tempWidth = picture.width;
-          picture.width = picture.height;
-          picture.height = tempWidth;
+        switch (orientation) {
+          case ScreenOrientation.Orientation.LANDSCAPE_LEFT:
+            rotation = 90;
+            break;
+          case ScreenOrientation.Orientation.LANDSCAPE_RIGHT:
+            rotation = -90;
+            break;
+          case ScreenOrientation.Orientation.PORTRAIT_UP:
+            rotation = 0;
+            break;
         }
+
+        const { uri: manipulatedUri } = await ImageManipulator.manipulateAsync(
+          picture.uri,
+          [{ rotate: rotation }],
+          { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+        );
 
         const namePhoto = `photo_${Date.now()}.jpg`;
         const filename = FileSystem.documentDirectory + namePhoto;
 
-        await FileSystem.copyAsync({ from: manipulatedPicture, to: filename });
-        await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
+        await FileSystem.copyAsync({ from: manipulatedUri, to: filename });
+        const asset = await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
 
-        const downloadURL = await uploadFile(manipulatedPicture, namePhoto);
-        if (downloadURL) {
-          await sendToBackend(downloadURL, picture.width, picture.height);
+        if (asset) {
+          const downloadURL = await uploadFile(manipulatedUri, namePhoto);
+          if (downloadURL) {
+            await sendToBackend(downloadURL, asset.width, asset.height, MediaTypePicture);
+          }
         }
       }
     } catch (error) {
@@ -79,8 +89,14 @@ export const takeVideo = async (
   isRecording: boolean,
   setIsRecording: Dispatch<SetStateAction<boolean>>,
   mediaLibraryPermission: MediaLibrary.PermissionResponse,
-  requestMediaLibraryPermission: () => Promise<MediaLibrary.PermissionResponse>
+  requestMediaLibraryPermission: () => Promise<MediaLibrary.PermissionResponse>,
+  setLoading: Dispatch<SetStateAction<boolean>>,
 ) => {
+  setLoading(true);
+  setTimeout(() => {
+    setLoading(false);
+  }, 1000);
+
   if (cameraRef.current) {
     try {
       if (isRecording) {
@@ -90,14 +106,16 @@ export const takeVideo = async (
         setIsRecording(true);
         const video = await cameraRef.current.recordAsync();
         if (video) {
-          const videoName = `video_${Date.now()}.mp4`
+          const videoName = `video_${Date.now()}.mp4`;
           const filename = FileSystem.documentDirectory + videoName;
           await FileSystem.copyAsync({ from: video.uri, to: filename });
-          await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
+          const asset = await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
 
-          const downloadURL = await uploadFile(video.uri, videoName);
-          if (downloadURL) {
-            await sendToBackend(downloadURL);
+          if (asset) {
+            const downloadURL = await uploadFile(video.uri, videoName);
+            if (downloadURL) {
+              await sendToBackend(downloadURL, asset?.width, asset?.height, MediaTypeVideo);
+            }
           }
         }
       }

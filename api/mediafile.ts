@@ -10,6 +10,7 @@ type payloadType = {
   UserID: string;
   Width: string;
   height: string;
+  MediaTypeID: string;
 }
 
 type MediafileRequestType = {
@@ -17,6 +18,7 @@ type MediafileRequestType = {
   MediaURL: string;
   UserID: string;
   Width: string;
+  MediaTypeID: string;
   _id: string;
   createdAt: string;
   height: string;
