@@ -1,7 +1,8 @@
 import axios from "axios";
-import { VITE_API_URL, TOKEN_API } from "@env"
-//Este token va a venir del login del qr
-const token = TOKEN_API;
+import { VITE_API_URL } from "@env";
+import { getToken } from "../helpers/helper";
+
+const token = getToken();
 
 const Axios = axios.create({
   baseURL: VITE_API_URL,
@@ -13,11 +14,8 @@ const Axios = axios.create({
 
 Axios.interceptors.request.use(
   (config) => {
-    if (token) {
-      config.headers['Authorization'] = token;
-    } else {
-      console.error("Token no disponible");
-    }
+    if (token) config.headers['Authorization'] = `Bearer ${token}`;
+
     return config;
   },
   (error) => Promise.reject(error)
