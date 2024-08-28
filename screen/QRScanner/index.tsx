@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Vibration, Alert } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Vibration } from "react-native";
 import { BarcodeScanningResult } from "expo-camera";
 import { globalStyles } from "../../styles/globalStyles";
 import { cameraIcons } from "../../common/icons";
 import { QRScannerData } from "./QRScanner.data";
 import { useNavigation } from "@react-navigation/native";
 import Camera from "../../components/Camera";
+import { login } from "./require";
+
+const USER_ERROR = "Usuario y/o contraseña incorrecto, intente nuevamente."
 
 const QRScanner: React.FC = () => {
   const navigation = useNavigation();
@@ -17,26 +20,22 @@ const QRScanner: React.FC = () => {
     setFlash(!flash);
   }
 
-  const barCodeScanned = ( {data}: BarcodeScanningResult ) => {
+  const barCodeScanned = async ( {data}: BarcodeScanningResult ) => {
     setScanned(true);
-    console.log(data);
 
-    try {
-      console.log(data);
+    const parsedData = JSON.parse(data);
 
-      if (data) navigation.navigate('Camera');
-      
-      
-    } catch (error) {
-      console.log('se rompió')
-    } finally {
-      setScanned(false);
+    const response = await login(parsedData);    
+
+    if (response.status === 200) {
+      navigation.navigate('Camera');
+    } else {
+      alert(USER_ERROR);
     }
-  };
+    
 
-  const alertError = (message: string) => {
-    Alert(message);
-  }
+    setScanned(false);
+  };
 
   return (
     <View style={globalStyles.container}>
@@ -51,7 +50,7 @@ const QRScanner: React.FC = () => {
         >
           <View style={{alignItems: 'flex-end'}}>
             <TouchableOpacity onPress={handleFlash}>
-              <Image source={!flash ? cameraIcons.flashImg : cameraIcons.flashOffImg} style={globalStyles.icon} />
+              <Image source={flash ? cameraIcons.flashImg : cameraIcons.flashOffImg} style={globalStyles.icon} />
             </TouchableOpacity>
           </View>
 
@@ -59,7 +58,6 @@ const QRScanner: React.FC = () => {
             <View>
               <Image source={cameraIcons.scannerImg} style={styles.image} />
             </View>
-
             <View style={styles.boxTranslucid}>
               <Text style={styles.text}>{QRScannerData.text}</Text>
             </View>
