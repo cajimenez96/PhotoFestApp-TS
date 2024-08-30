@@ -1,8 +1,5 @@
+import { Paths } from "../helpers/Paths";
 import Axios from "../lib/axios"
-
-const Paths = {
-  mediafile: "/mediafile"
-}
 
 type payloadType = {
   EventID: string;
