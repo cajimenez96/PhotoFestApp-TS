@@ -76,7 +76,7 @@ const CameraScreen = () => {
     if (mode === "picture") {
       loading ? undefined : takePicture(setLoading, cameraRef, mediaLibraryPermission, requestMediaLibraryPermission)
     } else {
-      takeVideo(cameraRef, isRecording, setIsRecording, mediaLibraryPermission, requestMediaLibraryPermission)
+      loading ? undefined : takeVideo(cameraRef, isRecording, setIsRecording, mediaLibraryPermission, requestMediaLibraryPermission, setLoading)
     }
   }
 
