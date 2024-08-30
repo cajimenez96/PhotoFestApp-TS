@@ -1,7 +1,8 @@
-import React, { forwardRef } from 'react';
-import { CameraView } from 'expo-camera';
+import React, { forwardRef, useEffect } from 'react';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { globalStyles } from '../../styles/globalStyles';
 import { ICamera } from './Camera.type';
+import { Button, Text, View } from 'react-native';
 
 const Camera = forwardRef<CameraView, ICamera>(({
   children,
@@ -11,6 +12,24 @@ const Camera = forwardRef<CameraView, ICamera>(({
   flash,
   handleBarCodeScanned,
 }, ref) => {
+
+  const [permission, requestPermission] = useCameraPermissions();
+
+  useEffect(() => {
+    if (!permission ) {
+      requestPermission();
+    }
+  }, []);
+
+  if (!permission?.granted) {
+    return (
+      <View style={globalStyles.container}>
+        <Text style={{ textAlign: 'center' }}>Para continuar, FestBook necesita permiso para acceder a su camara y grabar audio</Text>
+        <Button onPress={requestPermission} title="Grant camera permission" />
+      </View>
+    );
+  }
+  
   return (
     <CameraView
       onBarcodeScanned={handleBarCodeScanned}
