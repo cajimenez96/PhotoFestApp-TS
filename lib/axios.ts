@@ -1,8 +1,9 @@
 import axios from "axios";
 import { VITE_API_URL } from "@env";
-import { getToken } from "../helpers/helper";
+import { getAsyncStorage } from "../helpers/helper";
+import { TOKEN } from "../common/constants";
 
-const token = getToken();
+const token = getAsyncStorage(TOKEN);
 
 const Axios = axios.create({
   baseURL: VITE_API_URL,
