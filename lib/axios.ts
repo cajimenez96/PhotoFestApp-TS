@@ -3,8 +3,6 @@ import { VITE_API_URL } from "@env";
 import { getAsyncStorage } from "../helpers/helper";
 import { TOKEN } from "../common/constants";
 
-const token = getAsyncStorage(TOKEN);
-
 const Axios = axios.create({
   baseURL: VITE_API_URL,
   headers: {
@@ -14,9 +12,9 @@ const Axios = axios.create({
 });
 
 Axios.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    const token = await getAsyncStorage(TOKEN);
     if (token) config.headers['Authorization'] = `Bearer ${token}`;
-
     return config;
   },
   (error) => Promise.reject(error)
