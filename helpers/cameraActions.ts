@@ -7,6 +7,7 @@ import { CameraView } from 'expo-camera';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { MediaTypePicture, MediaTypeVideo } from '../common/constants';
+import { Alert } from 'react-native';
 
 const saveToLibrary = async (filename: string, mediaLibraryPermission: any, requestMediaLibraryPermission: () => Promise<any>) => {
   if (!mediaLibraryPermission.granted) {
@@ -79,7 +80,7 @@ export const takePicture = async (
         }
       }
     } catch (error) {
-      console.error(error);
+      Alert.alert("Error al guardar", "Ha ocurrido un error al guardar la foto")
     }
   }
 };
@@ -120,7 +121,7 @@ export const takeVideo = async (
         }
       }
     } catch (error) {
-      console.error(error);
+      Alert.alert("Error al guardar", "Ha ocurrido un error al guardar el video")
       setIsRecording(false);
     }
   }
