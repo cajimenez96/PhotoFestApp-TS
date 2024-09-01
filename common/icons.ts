@@ -8,4 +8,5 @@ export const cameraIcons = {
   pictureMode: require('../assets/picture/pictureMode.png'),
   startRecording: require('../assets/picture/startRecording.png'),
   onRecording: require('../assets/picture/onRecording.png'),
+  festBookLogo: require('../assets/picture/FestbookLogo.png')
 };

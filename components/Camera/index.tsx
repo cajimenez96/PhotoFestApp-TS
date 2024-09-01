@@ -1,8 +1,10 @@
 import React, { forwardRef, useEffect } from 'react';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import { globalStyles } from '../../styles/globalStyles';
 import { ICamera } from './Camera.type';
-import { Button, Text, View } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
+import PermissionModal from '../PermissionModal';
+import { View } from 'react-native';
 
 const Camera = forwardRef<CameraView, ICamera>(({
   children,
@@ -12,24 +14,36 @@ const Camera = forwardRef<CameraView, ICamera>(({
   flash,
   handleBarCodeScanned,
 }, ref) => {
-
   const [permission, requestPermission] = useCameraPermissions();
+  const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
+  const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
 
   useEffect(() => {
-    if (!permission ) {
+    if (!permission || !mediaLibraryPermission || !microphonePermission) {
       requestPermission();
+      requestMediaLibraryPermission();
+      requestMicrophonePermission()
     }
   }, []);
 
-  if (!permission?.granted) {
+  if (!permission || !mediaLibraryPermission || !microphonePermission) {
+    return <View />;
+  }
+
+  if (!permission.granted || !mediaLibraryPermission.granted || !microphonePermission.granted) {
     return (
-      <View style={globalStyles.container}>
-        <Text style={{ textAlign: 'center' }}>Para continuar, FestBook necesita permiso para acceder a su camara y grabar audio</Text>
-        <Button onPress={requestPermission} title="Grant camera permission" />
-      </View>
+      <PermissionModal
+        permission={permission}
+        requestPermission={requestPermission}
+        mediaLibraryPermission={mediaLibraryPermission}
+        requestMediaLibraryPermission={requestMediaLibraryPermission}
+        microphonePermission={microphonePermission}
+        requestMicrophonePermission={requestMicrophonePermission}
+
+      />
     );
   }
-  
+
   return (
     <CameraView
       onBarcodeScanned={handleBarCodeScanned}
