@@ -1,6 +1,6 @@
-import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
+import { CameraView } from 'expo-camera';
 import { useRef, useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
@@ -50,6 +50,12 @@ const CameraScreen = () => {
 
   if (!mediaLibraryPermission) {
     return <View />;
+  }
+
+  if (mode === "video") {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+  } else {
+    ScreenOrientation.unlockAsync();
   }
 
   const pictureOrVideo = () => {
