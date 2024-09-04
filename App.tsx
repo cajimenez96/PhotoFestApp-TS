@@ -3,8 +3,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import CameraScreen from './screen/CameraScreen';
 import QRScanner from './screen/QRScanner';
-import { getToken } from './helpers/helper';
+import { getAsyncStorage } from './helpers/helper';
 import { useEffect, useState } from 'react';
+import { TOKEN } from './common/constants';
 
 const Stack = createStackNavigator();
 
@@ -13,7 +14,7 @@ const App = () => {
 
   useEffect(() => {
     const updateToken = async () => {
-      const token = await getToken();
+      const token = await getAsyncStorage(TOKEN);
       setNewToken(token);
     }
 

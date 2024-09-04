@@ -1,7 +1,6 @@
-import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
+import { CameraView } from 'expo-camera';
 import { useRef, useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
+import { StyleSheet, View } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
@@ -10,39 +9,32 @@ import CameraButton from '../../components/CameraButton';
 import Camera from '../../components/Camera';
 import { takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import * as MediaLibrary from 'expo-media-library';
 
 const CameraScreen = () => {
-  const [permission, requestPermission] = useCameraPermissions();
-  const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
-  const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
   const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraMode, mode, isRecording, setIsRecording } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [isPortrait, setIsPortrait] = useState<number | null>();
-
-  const {PORTRAIT_UP, LANDSCAPE_LEFT, LANDSCAPE_RIGHT} = ScreenOrientation.Orientation
+  const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
+  const { PORTRAIT_UP, LANDSCAPE_LEFT, LANDSCAPE_RIGHT } = ScreenOrientation.Orientation
 
   useEffect(() => {
-    if (!permission || !mediaLibraryPermission || !microphonePermission) {
-      requestPermission();
-      requestMediaLibraryPermission();
-      requestMicrophonePermission();
+    const subscribeOrientationChange = async () => {
+      const orientation = await ScreenOrientation.getOrientationAsync();
+      handleOrientationChange(orientation);
 
-      const subscribeOrientationChange = async () => {
-        const orientation = await ScreenOrientation.getOrientationAsync();
-        handleOrientationChange(orientation);
-    
-        const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
-          handleOrientationChange(orientationInfo.orientation);
-        });
-        return () => {
-          ScreenOrientation.removeOrientationChangeListener(subscription);
-        };
+      const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
+        handleOrientationChange(orientationInfo.orientation);
+      });
+      return () => {
+        ScreenOrientation.removeOrientationChangeListener(subscription);
       };
-    
-      subscribeOrientationChange();
-    }
-  }, []);
+    };
+
+    subscribeOrientationChange();
+  }
+    , []);
 
   const handleOrientationChange = (orientation: ScreenOrientation.Orientation) => {
     if (orientation === PORTRAIT_UP) {
@@ -56,20 +48,14 @@ const CameraScreen = () => {
     }
   };
 
-  if (!permission || !mediaLibraryPermission || !microphonePermission) {
+  if (!mediaLibraryPermission) {
     return <View />;
   }
 
-  if (!permission.granted || !mediaLibraryPermission.granted) {
-    return (
-      <View style={[globalStyles.container, styles.container]}>
-        <View>
-          <Text>Para continuar, FestBook necesita permiso para acceder a su camara y grabar audio</Text>
-          <Button onPress={requestPermission} title='Grant camera permission' />
-          <Button onPress={requestMediaLibraryPermission} title='Grant media library permission' />
-        </View>
-      </View>
-    );
+  if (mode === "video") {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+  } else {
+    ScreenOrientation.unlockAsync();
   }
 
   const pictureOrVideo = () => {
@@ -94,10 +80,10 @@ const CameraScreen = () => {
             isPortrait === PORTRAIT_UP
               ? styles.flashViewPortait
               : isPortrait === LANDSCAPE_LEFT
-              ? styles.flashViewlandscapeLeft
-              : isPortrait === LANDSCAPE_RIGHT
-              ? styles.flashViewlandscapeRigth
-              : null
+                ? styles.flashViewlandscapeLeft
+                : isPortrait === LANDSCAPE_RIGHT
+                  ? styles.flashViewlandscapeRigth
+                  : null
           }
         >
           <CameraButton
@@ -111,10 +97,10 @@ const CameraScreen = () => {
             isPortrait === PORTRAIT_UP
               ? styles.buttonContainerPortrait
               : isPortrait === LANDSCAPE_LEFT
-              ? styles.buttonContainerLandscape
-              : isPortrait === LANDSCAPE_RIGHT
-              ? styles.buttonContainerLandscapeRigth
-              : null
+                ? styles.buttonContainerLandscape
+                : isPortrait === LANDSCAPE_RIGHT
+                  ? styles.buttonContainerLandscapeRigth
+                  : null
           }
         >
           <CameraButton
@@ -139,7 +125,7 @@ const CameraScreen = () => {
       </Camera>
     </View>
   );
-  
+
 }
 
 export default CameraScreen;
@@ -216,4 +202,5 @@ const styles = StyleSheet.create({
     width: 45,
   },
 });
+
 
