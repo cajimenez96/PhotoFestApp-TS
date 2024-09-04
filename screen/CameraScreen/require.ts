@@ -1,11 +1,15 @@
 import { MediafileRequest } from "../../api/mediafile"
 import { Alert } from "react-native"
+import { getAsyncStorage } from "../../helpers/helper";
+import { USER_ID } from "../../common/constants";
 
 export async function sendToBackend(downloadURL: string, width: number, height: number, mediaTypeId: string) {
+  const userId = await getAsyncStorage(USER_ID) ?? '';
+
   const payload = {
     EventID: "66b6ab67d728b05b6b08ab42",
     MediaURL: downloadURL,
-    UserID: "66b548239d87a872c6b141ca",
+    UserID: userId,
     Width: `${width}px`,
     height: `${height}px`,
     MediaTypeID: mediaTypeId,
