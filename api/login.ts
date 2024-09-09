@@ -4,6 +4,7 @@ import Axios from "../lib/axios";
 export interface IPayloadLogin {
   UserName: string;
   Password: string;
+  eventID: string;
 }
 
 export const loginApi = async (payload: IPayloadLogin): Promise<any> => {
