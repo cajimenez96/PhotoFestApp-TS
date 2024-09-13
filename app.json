@@ -18,7 +18,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.agustinbuff.PhotoFestAppTS"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,6 +37,11 @@
           "recordAudioAndroid": true
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6ce148d4-3390-430c-b624-61cd0b9cd806"
+      }
+    }
   }
 }
