@@ -8,8 +8,6 @@ import Camera from "../../components/Camera";
 import { login } from "./require";
 import { QRScannerProps } from "./QRScanner.type";
 
-const USER_ERROR = "Usuario y/o contraseña incorrecto, intente nuevamente."
-
 const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   const [scanned, setScanned] = useState<boolean>(false);
   const [flash, setFlash] = useState<boolean>(false);
@@ -21,16 +19,31 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
 
   const barCodeScanned = async ({ data }: BarcodeScanningResult) => {
     setScanned(true);
-    const parsedData = JSON.parse(data);
+    let parsedData;
+    try {
+      parsedData = JSON.parse(data);
+    } catch (error) {
+      Alert.alert("Error", "El código QR escaneado no es válido.", [
+        {
+          text: "Aceptar",
+          onPress: () => setScanned(false),
+        },
+      ]);
+      return;
+    }
+
     const response = await login(parsedData);
 
     if (response.status === 200) {
       setUserLogued(true);
     } else {
-      Alert.alert(USER_ERROR);
+      Alert.alert(QRScannerData.userError, "", [
+        {
+          text: "Aceptar",
+          onPress: () => setScanned(false),
+        },
+      ]);
     }
-
-    setScanned(false);
   };
 
   return (
@@ -95,3 +108,5 @@ const styles = StyleSheet.create({
     padding: 5,
   },
 });
+
+
