@@ -58,7 +58,7 @@ const Camera = forwardRef<CameraView, ICamera>(({
       facing={facing}
       flash={flash}
       ref={ref}
-      zoom={zoom} // Agrega esta línea
+      zoom={zoom} 
     >
       {children}
     </CameraView>
