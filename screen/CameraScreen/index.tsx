@@ -1,5 +1,5 @@
 import { CameraView } from 'expo-camera';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF } from '../../common/constants';
@@ -8,7 +8,6 @@ import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
 import Camera from '../../components/Camera';
 import { takePicture, takeVideo } from '../../helpers/cameraActions';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
 
@@ -16,47 +15,10 @@ const CameraScreen = () => {
   const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraMode, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isPortrait, setIsPortrait] = useState<number | null>();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
-  const { PORTRAIT_UP, LANDSCAPE_LEFT, LANDSCAPE_RIGHT } = ScreenOrientation.Orientation
-
-  useEffect(() => {
-    const subscribeOrientationChange = async () => {
-      const orientation = await ScreenOrientation.getOrientationAsync();
-      handleOrientationChange(orientation);
-
-      const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
-        handleOrientationChange(orientationInfo.orientation);
-      });
-      return () => {
-        ScreenOrientation.removeOrientationChangeListener(subscription);
-      };
-    };
-
-    subscribeOrientationChange();
-  }
-    , []);
-
-  const handleOrientationChange = (orientation: ScreenOrientation.Orientation) => {
-    if (orientation === PORTRAIT_UP) {
-      setIsPortrait(PORTRAIT_UP);
-    } else if (orientation === LANDSCAPE_LEFT) {
-      setIsPortrait(LANDSCAPE_LEFT);
-    } else if (orientation === LANDSCAPE_RIGHT) {
-      setIsPortrait(LANDSCAPE_RIGHT);
-    } else {
-      setIsPortrait(null);
-    }
-  };
 
   if (!mediaLibraryPermission) {
     return <View />;
-  }
-
-  if (mode === "video") {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-  } else {
-    ScreenOrientation.unlockAsync();
   }
 
   const pictureOrVideo = () => {
@@ -77,35 +39,14 @@ const CameraScreen = () => {
         torch={mode === "video" && flash === "on"}
         zoom={zoom}
       >
-
-        <View
-          style={
-            isPortrait === PORTRAIT_UP
-              ? styles.flashViewPortait
-              : isPortrait === LANDSCAPE_LEFT
-                ? styles.flashViewlandscapeLeft
-                : isPortrait === LANDSCAPE_RIGHT
-                  ? styles.flashViewlandscapeRigth
-                  : null
-          }
-        >
+        <View style={styles.flashView}>
           <CameraButton
             onPress={toggleFlash}
             source={flash === FLASHOFF ? cameraIcons.flashOffImg : cameraIcons.flashImg}
             typeDispatch={false}
           />
         </View>
-        <View
-          style={
-            isPortrait === PORTRAIT_UP
-              ? styles.buttonContainerPortrait
-              : isPortrait === LANDSCAPE_LEFT
-                ? styles.buttonContainerLandscape
-                : isPortrait === LANDSCAPE_RIGHT
-                  ? styles.buttonContainerLandscapeRigth
-                  : null
-          }
-        >
+        <View style={styles.buttonContainer}>
           <CameraButton
             onPress={isRecording ? undefined : toggleCameraMode}
             source={mode === "picture" ? cameraIcons.recordingImg : cameraIcons.pictureMode}
@@ -152,41 +93,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
   },
-  flashViewPortait: {
+  flashView: {
     alignItems: "flex-end",
   },
-  flashViewlandscapeLeft: {
-    position: 'absolute',
-    top: 20,
-    right: 30,
-  },
-  flashViewlandscapeRigth: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-  },
-  buttonContainerPortrait: {
+  buttonContainer: {
     position: 'absolute',
     bottom: 30,
     left: 0,
     right: 0,
     flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  buttonContainerLandscape: {
-    position: 'absolute',
-    right: "84%",
-    top: 0,
-    bottom: 0,
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-  buttonContainerLandscapeRigth: {
-    position: 'absolute',
-    left: "84%",
-    top: 0,
-    bottom: 0,
-    flexDirection: "column-reverse",
     justifyContent: 'center',
   },
   flashButton: {
