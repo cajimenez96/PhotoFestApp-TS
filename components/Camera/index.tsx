@@ -13,6 +13,7 @@ const Camera = forwardRef<CameraView, ICamera>(({
   facing,
   flash,
   handleBarCodeScanned,
+  zoom,
 }, ref) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
@@ -57,6 +58,7 @@ const Camera = forwardRef<CameraView, ICamera>(({
       facing={facing}
       flash={flash}
       ref={ref}
+      zoom={zoom} 
     >
       {children}
     </CameraView>
