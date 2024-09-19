@@ -7,6 +7,7 @@ const useCamera = () => {
   const [flash, setFlash] = useState<FlashMode>(FLASHOFF);
   const [mode, setMode] = useState<CameraMode>(PICTURE);
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [zoom, setZoom] = useState(0);
 
   const toggleFlash = () => {
     setFlash(current => (current === FLASHOFF ? FLASHON : FLASHOFF));
@@ -18,9 +19,10 @@ const useCamera = () => {
       if (flash === FLASHON) {
         setFlash(FLASHOFF);
         setTimeout(() => {
-          setFlash(FLASHON); 
+          setFlash(FLASHON);
         }, 100);
       }
+      setZoom(0)
       return newFacing;
     });
   };
@@ -33,6 +35,7 @@ const useCamera = () => {
           setFlash(FLASHON);
         }, 100);
       }
+      setZoom(0)
       return newMode
     });
   }
@@ -47,7 +50,9 @@ const useCamera = () => {
     setMode,
     isRecording,
     setIsRecording,
-    toggleCameraMode
+    toggleCameraMode,
+    setZoom,
+    zoom
   }
 }
 
