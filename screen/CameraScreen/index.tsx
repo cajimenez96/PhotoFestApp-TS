@@ -1,6 +1,6 @@
 import { CameraView } from 'expo-camera';
 import { useRef, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
@@ -10,9 +10,10 @@ import Camera from '../../components/Camera';
 import { takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as MediaLibrary from 'expo-media-library';
+import Slider from '@react-native-community/slider';
 
 const CameraScreen = () => {
-  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraMode, mode, isRecording, setIsRecording } = useCamera();
+  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraMode, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [isPortrait, setIsPortrait] = useState<number | null>();
@@ -74,7 +75,9 @@ const CameraScreen = () => {
         ref={cameraRef}
         flash={flash}
         torch={mode === "video" && flash === "on"}
+        zoom={zoom}
       >
+
         <View
           style={
             isPortrait === PORTRAIT_UP
@@ -123,6 +126,20 @@ const CameraScreen = () => {
           />
         </View>
       </Camera>
+      {zoom !== 0 &&
+        <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
+      }
+      <Slider
+        style={styles.slider}
+        minimumValue={0}
+        maximumValue={1}
+        value={zoom}
+        onValueChange={setZoom}
+        step={0.1}
+        minimumTrackTintColor="#ffffff"
+        maximumTrackTintColor="#ffffff"
+        thumbTintColor='#ffffff'
+      />
     </View>
   );
 
@@ -200,6 +217,19 @@ const styles = StyleSheet.create({
   imgFlash: {
     height: 45,
     width: 45,
+  },
+  slider: {
+    width: '80%',
+    height: 40,
+    position: 'absolute',
+    bottom: 130,
+    left: 40,
+  },
+  textZoom: {
+    color: "#ffffff",
+    position: "absolute",
+    bottom: 168,
+    left: 170,
   },
 });
 
