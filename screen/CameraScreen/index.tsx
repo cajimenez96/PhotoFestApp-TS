@@ -1,8 +1,8 @@
 import { CameraView } from 'expo-camera';
 import { useRef, useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import useCamera from '../../hooks/useCamera';
-import { FLASHOFF } from '../../common/constants';
+import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
@@ -10,9 +10,18 @@ import Camera from '../../components/Camera';
 import { takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
+import { CameraActionButtonProps } from './CameraScreen.type';
+
+const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <Image source={img} style={styles.buttonsMode} />
+    </TouchableOpacity>
+  )
+}
 
 const CameraScreen = () => {
-  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraMode, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
+  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
@@ -47,24 +56,36 @@ const CameraScreen = () => {
           />
         </View>
         <View style={styles.buttonContainer}>
-          <CameraButton
-            onPress={isRecording ? undefined : toggleCameraMode}
-            source={mode === "picture" ? cameraIcons.recordingImg : cameraIcons.pictureMode}
-            typeDispatch={false}
-            disableImage={isRecording}
-          />
-          <CameraButton
-            onPress={pictureOrVideo}
-            source={isRecording ? cameraIcons.onRecording : (mode === "picture" ? cameraIcons.dispatchPhotoImg : cameraIcons.startRecording)}
-            typeDispatch={true}
-            disableImage={loading}
-          />
-          <CameraButton
-            onPress={isRecording ? undefined : toggleCameraFacing}
-            source={cameraIcons.flipCameraImg}
-            typeDispatch={false}
-            disableImage={isRecording}
-          />
+
+          <View style={styles.buttonSup}>
+            <CameraButton
+              source={cameraIcons.galleryIcon}
+              typeDispatch={false}
+              disableImage={isRecording}
+            />
+            <CameraButton
+              onPress={pictureOrVideo}
+              source={isRecording ? cameraIcons.onRecording : (mode === "picture" ? cameraIcons.dispatchPhotoImg : cameraIcons.startRecording)}
+              typeDispatch={true}
+              disableImage={loading}
+            />
+            <CameraButton
+              onPress={isRecording ? undefined : toggleCameraFacing}
+              source={cameraIcons.flipCameraImg}
+              typeDispatch={false}
+              disableImage={isRecording}
+            />
+          </View>
+          <View style={styles.buttonBot}>
+            <CameraActionButton
+              onPress={toggleCameraModeVideo}
+              img={mode === VIDEO ? cameraIcons.videoModeDark : cameraIcons.videoMode}
+            />
+            <CameraActionButton
+              onPress={toggleCameraModePhoto}
+              img={mode === PICTURE ? cameraIcons.pictureModeDark : cameraIcons.pictureMode}
+            />
+          </View>
         </View>
       </Camera>
       {zoom !== 0 &&
@@ -83,7 +104,6 @@ const CameraScreen = () => {
       />
     </View>
   );
-
 }
 
 export default CameraScreen;
@@ -98,11 +118,25 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 0,
     left: 0,
     right: 0,
+  },
+  buttonSup: {
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  buttonBot: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.221)",
+    marginTop: 10,
+    padding: 3,
+  },
+  buttonsMode: {
+    width: 67,
+    height: 67,
+    marginHorizontal: 10,
   },
   flashButton: {
     width: 60,
@@ -137,7 +171,7 @@ const styles = StyleSheet.create({
     width: '80%',
     height: 40,
     position: 'absolute',
-    bottom: 130,
+    bottom: 180,
     left: 40,
   },
   textZoom: {
@@ -147,5 +181,3 @@ const styles = StyleSheet.create({
     left: 170,
   },
 });
-
-
