@@ -1,62 +1,33 @@
 import { CameraView } from 'expo-camera';
-import { useRef, useEffect, useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { useRef, useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import useCamera from '../../hooks/useCamera';
-import { FLASHOFF } from '../../common/constants';
+import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
 import Camera from '../../components/Camera';
 import { takePicture, takeVideo } from '../../helpers/cameraActions';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
+import { CameraActionButtonProps } from './CameraScreen.type';
+
+const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <Image source={img} style={styles.buttonsMode} />
+    </TouchableOpacity>
+  )
+}
 
 const CameraScreen = () => {
-  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraMode, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
+  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isPortrait, setIsPortrait] = useState<number | null>();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
-  const { PORTRAIT_UP, LANDSCAPE_LEFT, LANDSCAPE_RIGHT } = ScreenOrientation.Orientation
-
-  useEffect(() => {
-    const subscribeOrientationChange = async () => {
-      const orientation = await ScreenOrientation.getOrientationAsync();
-      handleOrientationChange(orientation);
-
-      const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
-        handleOrientationChange(orientationInfo.orientation);
-      });
-      return () => {
-        ScreenOrientation.removeOrientationChangeListener(subscription);
-      };
-    };
-
-    subscribeOrientationChange();
-  }
-    , []);
-
-  const handleOrientationChange = (orientation: ScreenOrientation.Orientation) => {
-    if (orientation === PORTRAIT_UP) {
-      setIsPortrait(PORTRAIT_UP);
-    } else if (orientation === LANDSCAPE_LEFT) {
-      setIsPortrait(LANDSCAPE_LEFT);
-    } else if (orientation === LANDSCAPE_RIGHT) {
-      setIsPortrait(LANDSCAPE_RIGHT);
-    } else {
-      setIsPortrait(null);
-    }
-  };
 
   if (!mediaLibraryPermission) {
     return <View />;
-  }
-
-  if (mode === "video") {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-  } else {
-    ScreenOrientation.unlockAsync();
   }
 
   const pictureOrVideo = () => {
@@ -77,53 +48,44 @@ const CameraScreen = () => {
         torch={mode === "video" && flash === "on"}
         zoom={zoom}
       >
-
-        <View
-          style={
-            isPortrait === PORTRAIT_UP
-              ? styles.flashViewPortait
-              : isPortrait === LANDSCAPE_LEFT
-                ? styles.flashViewlandscapeLeft
-                : isPortrait === LANDSCAPE_RIGHT
-                  ? styles.flashViewlandscapeRigth
-                  : null
-          }
-        >
+        <View style={styles.flashView}>
           <CameraButton
             onPress={toggleFlash}
             source={flash === FLASHOFF ? cameraIcons.flashOffImg : cameraIcons.flashImg}
             typeDispatch={false}
           />
         </View>
-        <View
-          style={
-            isPortrait === PORTRAIT_UP
-              ? styles.buttonContainerPortrait
-              : isPortrait === LANDSCAPE_LEFT
-                ? styles.buttonContainerLandscape
-                : isPortrait === LANDSCAPE_RIGHT
-                  ? styles.buttonContainerLandscapeRigth
-                  : null
-          }
-        >
-          <CameraButton
-            onPress={isRecording ? undefined : toggleCameraMode}
-            source={mode === "picture" ? cameraIcons.recordingImg : cameraIcons.pictureMode}
-            typeDispatch={false}
-            disableImage={isRecording}
-          />
-          <CameraButton
-            onPress={pictureOrVideo}
-            source={isRecording ? cameraIcons.onRecording : (mode === "picture" ? cameraIcons.dispatchPhotoImg : cameraIcons.startRecording)}
-            typeDispatch={true}
-            disableImage={loading}
-          />
-          <CameraButton
-            onPress={isRecording ? undefined : toggleCameraFacing}
-            source={cameraIcons.flipCameraImg}
-            typeDispatch={false}
-            disableImage={isRecording}
-          />
+        <View style={styles.buttonContainer}>
+
+          <View style={styles.buttonSup}>
+            <CameraButton
+              source={cameraIcons.galleryIcon}
+              typeDispatch={false}
+              disableImage={isRecording}
+            />
+            <CameraButton
+              onPress={pictureOrVideo}
+              source={isRecording ? cameraIcons.onRecording : (mode === "picture" ? cameraIcons.dispatchPhotoImg : cameraIcons.startRecording)}
+              typeDispatch={true}
+              disableImage={loading}
+            />
+            <CameraButton
+              onPress={isRecording ? undefined : toggleCameraFacing}
+              source={cameraIcons.flipCameraImg}
+              typeDispatch={false}
+              disableImage={isRecording}
+            />
+          </View>
+          <View style={styles.buttonBot}>
+            <CameraActionButton
+              onPress={toggleCameraModeVideo}
+              img={mode === VIDEO ? cameraIcons.videoModeDark : cameraIcons.videoMode}
+            />
+            <CameraActionButton
+              onPress={toggleCameraModePhoto}
+              img={mode === PICTURE ? cameraIcons.pictureModeDark : cameraIcons.pictureMode}
+            />
+          </View>
         </View>
       </Camera>
       {zoom !== 0 &&
@@ -142,7 +104,6 @@ const CameraScreen = () => {
       />
     </View>
   );
-
 }
 
 export default CameraScreen;
@@ -152,42 +113,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
   },
-  flashViewPortait: {
+  flashView: {
     alignItems: "flex-end",
   },
-  flashViewlandscapeLeft: {
+  buttonContainer: {
     position: 'absolute',
-    top: 20,
-    right: 30,
-  },
-  flashViewlandscapeRigth: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-  },
-  buttonContainerPortrait: {
-    position: 'absolute',
-    bottom: 30,
+    bottom: 0,
     left: 0,
     right: 0,
+  },
+  buttonSup: {
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  buttonContainerLandscape: {
-    position: 'absolute',
-    right: "84%",
-    top: 0,
-    bottom: 0,
-    flexDirection: 'column',
+  buttonBot: {
+    flexDirection: 'row',
     justifyContent: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.221)",
+    marginTop: 10,
+    padding: 3,
   },
-  buttonContainerLandscapeRigth: {
-    position: 'absolute',
-    left: "84%",
-    top: 0,
-    bottom: 0,
-    flexDirection: "column-reverse",
-    justifyContent: 'center',
+  buttonsMode: {
+    width: 67,
+    height: 67,
+    marginHorizontal: 10,
   },
   flashButton: {
     width: 60,
@@ -222,7 +171,7 @@ const styles = StyleSheet.create({
     width: '80%',
     height: 40,
     position: 'absolute',
-    bottom: 130,
+    bottom: 180,
     left: 40,
   },
   textZoom: {
@@ -232,5 +181,3 @@ const styles = StyleSheet.create({
     left: 170,
   },
 });
-
-
