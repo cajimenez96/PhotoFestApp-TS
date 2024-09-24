@@ -8,12 +8,14 @@ export async function sendToBackend(downloadURL: string, width: number, height: 
   const eventID = await getAsyncStorage(EVENT_ID) ?? '';
 
   const payload = {
-    EventID: eventID,
-    MediaURL: downloadURL,
-    UserID: userId,
-    Width: `${width}px`,
-    height: `${height}px`,
-    MediaTypeID: mediaTypeId,
+    mediaFileData: {
+      EventID: eventID,
+      MediaURL: downloadURL,
+      UserID: userId,
+      Width: `${width}px`,
+      height: `${height}px`,
+      MediaTypeID: mediaTypeId,
+    }
   }
   return await MediafileRequest(payload)
     .then((response) => {

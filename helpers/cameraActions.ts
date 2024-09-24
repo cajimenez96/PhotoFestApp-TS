@@ -4,7 +4,7 @@ import { uploadFile } from '../firebase/firebase.config';
 import { sendToBackend } from '../screen/CameraScreen/require';
 import { Dispatch, SetStateAction } from 'react';
 import { CameraView } from 'expo-camera';
-import { MediaTypePicture, MediaTypeVideo } from '../common/constants';
+import { MediaTypePicture, MediaTypeVideo, VIDEO } from '../common/constants';
 import { Alert } from 'react-native';
 import * as ImagePicker from "expo-image-picker"
 
@@ -116,6 +116,13 @@ export const pickImage = async () => {
   });
 
   if (!result.canceled) {
-    console.log(result)
+    for (const asset of result.assets) {
+      if (asset.uri && asset.fileName) {
+        const downloadURL = await uploadFile(asset.uri, asset.fileName);
+        if (downloadURL) {
+          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture);
+        }
+      }
+    }
   }
 };
