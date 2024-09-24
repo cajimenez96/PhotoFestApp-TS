@@ -6,6 +6,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { CameraView } from 'expo-camera';
 import { MediaTypePicture, MediaTypeVideo } from '../common/constants';
 import { Alert } from 'react-native';
+import * as ImagePicker from "expo-image-picker"
 
 const saveToLibrary = async (filename: string, mediaLibraryPermission: any, requestMediaLibraryPermission: () => Promise<any>) => {
   if (!mediaLibraryPermission.granted) {
@@ -48,8 +49,6 @@ export const takePicture = async (
 
         await FileSystem.copyAsync({ from: picture.uri, to: filename });
         const asset = await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
-
-        console.log(picture.uri)
 
         if (asset) {
           const downloadURL = await uploadFile(picture.uri, namePhoto);
@@ -103,5 +102,20 @@ export const takeVideo = async (
       Alert.alert("Error al guardar", "Ha ocurrido un error al guardar el video")
       setIsRecording(false);
     }
+  }
+};
+
+export const pickImage = async () => {
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.All,
+    allowsEditing: false,
+    aspect: [4, 3],
+    quality: 1,
+    allowsMultipleSelection: true,
+    selectionLimit: 10,
+  });
+
+  if (!result.canceled) {
+    console.log(result)
   }
 };
