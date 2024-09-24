@@ -7,7 +7,7 @@ import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
 import Camera from '../../components/Camera';
-import { takePicture, takeVideo } from '../../helpers/cameraActions';
+import { pickImage, takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
 import { CameraActionButtonProps } from './CameraScreen.type';
@@ -62,6 +62,7 @@ const CameraScreen = () => {
               source={cameraIcons.galleryIcon}
               typeDispatch={false}
               disableImage={isRecording}
+              onPress={pickImage}
             />
             <CameraButton
               onPress={pictureOrVideo}
