@@ -1,6 +1,6 @@
 import { CameraView } from 'expo-camera';
 import { useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
@@ -25,6 +25,8 @@ const CameraScreen = () => {
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
+  const [successUpload, setSuccessUpload] = useState<boolean>(false);
+  const [uploadStatus, setUploadStatus] = useState<string>('');
 
   if (!mediaLibraryPermission) {
     return <View />;
@@ -37,6 +39,13 @@ const CameraScreen = () => {
       loading ? undefined : takeVideo(cameraRef, isRecording, setIsRecording, mediaLibraryPermission, requestMediaLibraryPermission, setLoading)
     }
   }
+
+  const handlePickImage = async () => {
+    await pickImage(
+      setSuccessUpload, 
+      setUploadStatus, 
+    );
+  };
 
   return (
     <View style={globalStyles.container}>
@@ -56,13 +65,12 @@ const CameraScreen = () => {
           />
         </View>
         <View style={styles.buttonContainer}>
-
           <View style={styles.buttonSup}>
             <CameraButton
               source={cameraIcons.galleryIcon}
               typeDispatch={false}
               disableImage={isRecording}
-              onPress={pickImage}
+              onPress={handlePickImage}
             />
             <CameraButton
               onPress={pictureOrVideo}
@@ -89,20 +97,36 @@ const CameraScreen = () => {
           </View>
         </View>
       </Camera>
-      {zoom !== 0 &&
-        <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
+      {uploadStatus && (
+        <View style={styles.loaderContainer}>
+          <Text style={styles.textUploading}>{uploadStatus}</Text>
+          {!successUpload ? (
+            <ActivityIndicator size="small" color="#000000" />
+          ) : (
+            <Image style={styles.success} source={cameraIcons.successIcon} />
+          )
+          }
+        </View>
+      )
       }
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={1}
-        value={zoom}
-        onValueChange={setZoom}
-        step={0.1}
-        minimumTrackTintColor="#ffffff"
-        maximumTrackTintColor="#ffffff"
-        thumbTintColor='#ffffff'
-      />
+      {cameraRef &&
+        <>
+          {zoom !== 0 &&
+            <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
+          }
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={1}
+            value={zoom}
+            onValueChange={setZoom}
+            step={0.1}
+            minimumTrackTintColor="#ffffff"
+            maximumTrackTintColor="#ffffff"
+            thumbTintColor='#ffffff'
+          />
+        </>
+      }
     </View>
   );
 }
@@ -178,7 +202,27 @@ const styles = StyleSheet.create({
   textZoom: {
     color: "#ffffff",
     position: "absolute",
-    bottom: 168,
+    bottom: 220,
     left: 170,
+  },
+  success: {
+    width: 20,
+    height: 20,
+  },
+  loaderContainer: {
+    position: "absolute",
+    top: 35,
+    left: 111,
+    width: 135,
+    height: 40,
+    borderRadius: 30,
+    flexDirection: "row",
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgb(255, 255, 255)',
+  },
+  textUploading: {
+    fontSize: 12,
+    paddingRight: 6,
   },
 });

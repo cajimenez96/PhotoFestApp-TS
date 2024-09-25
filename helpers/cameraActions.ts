@@ -105,7 +105,10 @@ export const takeVideo = async (
   }
 };
 
-export const pickImage = async () => {
+export const pickImage = async (
+  setSuccessUpload: React.Dispatch<React.SetStateAction<boolean>>,
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>
+) => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
     allowsEditing: false,
@@ -116,13 +119,29 @@ export const pickImage = async () => {
   });
 
   if (!result.canceled) {
+    const totalFiles = result.assets.length;
+
     for (const asset of result.assets) {
+      if (totalFiles > 1) setUploadStatus(`Subiendo archivos`);
+      else setUploadStatus(`Subiendo archivo`)
+ 
       if (asset.uri && asset.fileName) {
         const downloadURL = await uploadFile(asset.uri, asset.fileName);
         if (downloadURL) {
-          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture);
+          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture).then(() => {
+            if (totalFiles > 1) {
+              setUploadStatus('Archivos subidos')
+            } else {
+              setUploadStatus('Archivo subido')
+            }
+          })
         }
       }
     }
+    setSuccessUpload(true)
+    setTimeout(() => {
+      setUploadStatus('')
+      setSuccessUpload(false)
+    }, 1000);
   }
 };
