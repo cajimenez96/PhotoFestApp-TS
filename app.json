@@ -23,7 +23,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.agustinbuff.PhotoFestAppTS"
+      "package": "com.synergy.photofest"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -40,7 +40,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "6ce148d4-3390-430c-b624-61cd0b9cd806"
+        "projectId": "2817ff6f-2785-40f1-a899-25f4e008bda1"
       }
     }
   }
