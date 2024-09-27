@@ -5,6 +5,7 @@ export interface IPayloadLogin {
   UserName: string;
   Password: string;
   eventID: string;
+  email: string;
 }
 
 export const loginApi = async (payload: IPayloadLogin): Promise<any> => {

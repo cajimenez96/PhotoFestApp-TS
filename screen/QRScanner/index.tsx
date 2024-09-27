@@ -10,12 +10,21 @@ import { QRScannerProps } from "./QRScanner.type";
 import Popup from "../../components/Popup";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
+import { IPayloadLogin } from "../../api/login";
 
 const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   const [scanned, setScanned] = useState<boolean>(false);
   const [flash, setFlash] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [eventId, setEventId] = useState<string>("");
+
+  const [dataLogin, setDataLogin] = useState<IPayloadLogin>({
+    UserName: "",
+    Password: "",
+    eventID: "",
+    email: "",
+  }) 
+  // const [eventId, setEventId] = useState<string>("");
+  const [newEmail, setNewEmail] = useState<string>("");
 
   const handleFlash = () => {
     Vibration.vibrate(500);
@@ -27,6 +36,12 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
     let parsedData;
     try {
       parsedData = JSON.parse(data);
+      setDataLogin({
+        eventID: parsedData.EventID,
+        UserName: parsedData.UserName,
+        Password: parsedData.Password,
+        email: dataLogin.email,
+      })
     } catch (error) {
       Alert.alert("Error", "El código QR escaneado no es válido.", [
         {
@@ -37,7 +52,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
       return;
     }
 
-    setEventId(parsedData.EventID);
+    // setEventId(parsedData.EventID);
     setOpenModal(true);
     // const response = await login(parsedData);
 
@@ -60,10 +75,26 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
           <Text style={{textAlign: 'center'}}>
             {`Para poder continuar necesito que ingreses su correo electrónico`}
           </Text>
-          <Input placeholder="Ingrese su email" style={{marginTop: 50}} />
+          <Input
+            placeholder="Ingrese su email"
+            style={{marginTop: 50}}
+            onChange={setNewEmail}
+          />
 
           <View style={styles.buttonPopup}>
-            <Button style={{width: 140}}>
+            <Button style={{width: 140}} onClick={() => {
+                setDataLogin({
+                  eventID: dataLogin.eventID,
+                  UserName: dataLogin.UserName,
+                  Password: dataLogin.Password,
+                  email: newEmail,
+                });
+
+
+                console.log(dataLogin);
+                
+              }
+            }>
               <Text style={styles.textCenter}>Enviar</Text>
             </Button>
 
