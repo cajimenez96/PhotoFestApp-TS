@@ -7,10 +7,15 @@ import { QRScannerData } from "./QRScanner.data";
 import Camera from "../../components/Camera";
 import { login } from "./require";
 import { QRScannerProps } from "./QRScanner.type";
+import Popup from "../../components/Popup";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
 
 const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   const [scanned, setScanned] = useState<boolean>(false);
   const [flash, setFlash] = useState<boolean>(false);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [eventId, setEventId] = useState<string>("");
 
   const handleFlash = () => {
     Vibration.vibrate(500);
@@ -32,19 +37,44 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
       return;
     }
 
-    const response = await login(parsedData);
+    setEventId(parsedData.EventID);
+    setOpenModal(true);
+    // const response = await login(parsedData);
 
-    if (response.status === 200) {
-      setUserLogued(true);
-    } else {
-      Alert.alert(QRScannerData.userError, "", [
-        {
-          text: "Aceptar",
-          onPress: () => setScanned(false),
-        },
-      ]);
-    }
+    // if (response.status === 200) {
+    //   setUserLogued(true);
+    // } else {
+    //   Alert.alert(QRScannerData.userError, "", [
+    //     {
+    //       text: "Aceptar",
+    //       onPress: () => setScanned(false),
+    //     },
+    //   ]);
+    // }
   };
+
+  const renderModal = () => {
+    return (
+      <Popup>
+        <View>
+          <Text style={{textAlign: 'center'}}>
+            {`Para poder continuar necesito que ingreses su correo electrónico`}
+          </Text>
+          <Input placeholder="Ingrese su email" style={{marginTop: 50}} />
+
+          <View style={styles.buttonPopup}>
+            <Button style={{width: 140}}>
+              <Text style={styles.textCenter}>Enviar</Text>
+            </Button>
+
+            <Button style={{width: 120}} onClick={() => setOpenModal(false)}>
+              <Text style={styles.textCenter}>Cancelar</Text>
+            </Button>
+          </View>
+        </View>
+      </Popup>
+    )
+  }
 
   return (
     <View style={globalStyles.container}>
@@ -73,6 +103,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
           </View>
         </Camera>
       )}
+      {openModal && renderModal()}
     </View>
   );
 }
@@ -107,6 +138,14 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     padding: 5,
   },
+  buttonPopup: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 50
+  },
+  textCenter: {
+    textAlign: 'center'
+  }
 });
 
 
