@@ -2,12 +2,14 @@ import { Paths } from "../helpers/Paths";
 import Axios from "../lib/axios"
 
 type payloadType = {
-  EventID: string;
-  MediaURL: string;
-  UserID: string;
-  Width: string;
-  height: string;
-  MediaTypeID: string;
+  mediaFileData: {
+    EventID: string;
+    MediaURL: string;
+    UserID: string;
+    Width: string;
+    height: string;
+    MediaTypeID: string;
+  }
 }
 
 type MediafileRequestType = {

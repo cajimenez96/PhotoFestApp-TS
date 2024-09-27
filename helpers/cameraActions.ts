@@ -4,8 +4,9 @@ import { uploadFile } from '../firebase/firebase.config';
 import { sendToBackend } from '../screen/CameraScreen/require';
 import { Dispatch, SetStateAction } from 'react';
 import { CameraView } from 'expo-camera';
-import { MediaTypePicture, MediaTypeVideo } from '../common/constants';
+import { MediaTypePicture, MediaTypeVideo, VIDEO } from '../common/constants';
 import { Alert } from 'react-native';
+import * as ImagePicker from "expo-image-picker"
 
 const saveToLibrary = async (filename: string, mediaLibraryPermission: any, requestMediaLibraryPermission: () => Promise<any>) => {
   if (!mediaLibraryPermission.granted) {
@@ -48,8 +49,6 @@ export const takePicture = async (
 
         await FileSystem.copyAsync({ from: picture.uri, to: filename });
         const asset = await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
-
-        console.log(picture.uri)
 
         if (asset) {
           const downloadURL = await uploadFile(picture.uri, namePhoto);
@@ -103,5 +102,46 @@ export const takeVideo = async (
       Alert.alert("Error al guardar", "Ha ocurrido un error al guardar el video")
       setIsRecording(false);
     }
+  }
+};
+
+export const pickImage = async (
+  setSuccessUpload: React.Dispatch<React.SetStateAction<boolean>>,
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>
+) => {
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.All,
+    allowsEditing: false,
+    aspect: [4, 3],
+    quality: 1,
+    allowsMultipleSelection: true,
+    selectionLimit: 10,
+  });
+
+  if (!result.canceled) {
+    const totalFiles = result.assets.length;
+
+    for (const asset of result.assets) {
+      if (totalFiles > 1) setUploadStatus(`Subiendo archivos`);
+      else setUploadStatus(`Subiendo archivo`)
+ 
+      if (asset.uri && asset.fileName) {
+        const downloadURL = await uploadFile(asset.uri, asset.fileName);
+        if (downloadURL) {
+          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture).then(() => {
+            if (totalFiles > 1) {
+              setUploadStatus('Archivos subidos')
+            } else {
+              setUploadStatus('Archivo subido')
+            }
+          })
+        }
+      }
+    }
+    setSuccessUpload(true)
+    setTimeout(() => {
+      setUploadStatus('')
+      setSuccessUpload(false)
+    }, 1000);
   }
 };
