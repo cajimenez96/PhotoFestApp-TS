@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, TextInput } from 'react-native';
 import { IInput } from './Input.types';
 
-const Input = ({placeholder = "", style}: IInput) => {
+const Input = ({placeholder = "", style, onChange}: IInput) => {
   const [text, onChangeText] = useState(placeholder);
 
   return (
@@ -10,7 +10,7 @@ const Input = ({placeholder = "", style}: IInput) => {
       <TextInput
         autoComplete="email"
         style={[styles.input, style]}
-        onChangeText={onChangeText}
+        onChangeText={onChange}
         placeholder={placeholder}
       />
     </SafeAreaView>
