@@ -12,5 +12,6 @@ export const cameraIcons = {
   pictureMode: require('../assets/picture/pictureMode.png'),
   pictureModeDark: require('../assets/picture/pictureModeDark.png'),
   videoModeDark: require('../assets/picture/videoModeDark.png'),
-  successIcon: require('../assets/picture/success.png')
+  successIcon: require('../assets/picture/success.png'),
+  arrowBack: require('../assets/picture/arrowBack.png')
 };
