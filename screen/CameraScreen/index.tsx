@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     position: "absolute",
     bottom: 220,
-    left: 170,
+    left: "46%",
   },
   success: {
     width: 20,
@@ -211,10 +211,10 @@ const styles = StyleSheet.create({
   },
   loaderContainer: {
     position: "absolute",
-    top: 35,
-    left: 111,
-    width: 135,
-    height: 40,
+    top: "4%",
+    left: "30%",
+    width: "40%",
+    height: 38,
     borderRadius: 30,
     flexDirection: "row",
     alignItems: 'center',
