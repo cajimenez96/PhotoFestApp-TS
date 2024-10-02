@@ -11,6 +11,7 @@ import { pickImage, takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
 import { CameraActionButtonProps } from './CameraScreen.type';
+import ModalPreview from '../../components/ModalPreview/ModalPreview';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -24,9 +25,12 @@ const CameraScreen = () => {
   const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
+  const [mediaLibraryPermission] = MediaLibrary.usePermissions();
   const [successUpload, setSuccessUpload] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
+
+  const [picture, setPicture] = useState<string>('');
+  const [video, setVideo] = useState<string>('');
 
   if (!mediaLibraryPermission) {
     return <View />;
@@ -34,9 +38,9 @@ const CameraScreen = () => {
 
   const pictureOrVideo = () => {
     if (mode === "picture") {
-      loading ? undefined : takePicture(setLoading, cameraRef, mediaLibraryPermission, requestMediaLibraryPermission)
+      loading ? undefined : takePicture(setLoading, cameraRef, setPicture)
     } else {
-      loading ? undefined : takeVideo(cameraRef, isRecording, setIsRecording, mediaLibraryPermission, requestMediaLibraryPermission, setLoading)
+      loading ? undefined : takeVideo(cameraRef, isRecording, setIsRecording, setLoading, setVideo)
     }
   }
 
@@ -46,6 +50,15 @@ const CameraScreen = () => {
       setUploadStatus, 
     );
   };
+
+  if (picture) {
+    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture'/>
+  }
+
+  if (video) {
+    return <ModalPreview media={video} setMedia={setVideo} mediaType='video'/>
+  }
+
 
   return (
     <View style={globalStyles.container}>
@@ -87,11 +100,11 @@ const CameraScreen = () => {
           </View>
           <View style={styles.buttonBot}>
             <CameraActionButton
-              onPress={toggleCameraModeVideo}
+              onPress={isRecording ? () => {}  : toggleCameraModeVideo}
               img={mode === VIDEO ? cameraIcons.videoModeDark : cameraIcons.videoMode}
             />
             <CameraActionButton
-              onPress={toggleCameraModePhoto}
+              onPress={isRecording ? () => {}  : toggleCameraModePhoto}
               img={mode === PICTURE ? cameraIcons.pictureModeDark : cameraIcons.pictureMode}
             />
           </View>
