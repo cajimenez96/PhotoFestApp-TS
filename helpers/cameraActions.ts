@@ -4,32 +4,38 @@ import { uploadFile } from '../firebase/firebase.config';
 import { sendToBackend } from '../screen/CameraScreen/require';
 import { Dispatch, SetStateAction } from 'react';
 import { CameraView } from 'expo-camera';
-import { MediaTypePicture, MediaTypeVideo } from '../common/constants';
+import { MediaTypePicture, MediaTypeVideo, VIDEO } from '../common/constants';
 import { Alert } from 'react-native';
+import * as ImagePicker from "expo-image-picker"
 
-const saveToLibrary = async (filename: string, mediaLibraryPermission: any, requestMediaLibraryPermission: () => Promise<any>) => {
-  if (!mediaLibraryPermission.granted) {
-    const { status } = await requestMediaLibraryPermission();
-    if (status !== 'granted') {
-      console.error('Permission to access media library is required!');
-      return;
-    }
-  }
+const saveToLibrary = async (filename: string) => {
   const asset = await MediaLibrary.createAssetAsync(filename);
   await MediaLibrary.createAlbumAsync('FestBook', asset, false);
   return asset;
 };
 
+export const uploadMedia = async (mediaUri: string, type: "picture" | 'video') => {
+  const isPhoto = type === "picture";
+  const name = isPhoto ? `photo_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
+  const filename = FileSystem.documentDirectory + name;
+
+  await FileSystem.copyAsync({ from: mediaUri, to: filename });
+  const asset = await saveToLibrary(filename);
+
+  if (asset) {
+    const downloadURL = await uploadFile(mediaUri, name);
+    if (downloadURL) {
+      await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo);
+    }
+  }
+};
+
 export const takePicture = async (
   setLoading: Dispatch<SetStateAction<boolean>>,
   cameraRef: React.MutableRefObject<CameraView | null>,
-  mediaLibraryPermission: MediaLibrary.PermissionResponse,
-  requestMediaLibraryPermission: () => Promise<MediaLibrary.PermissionResponse>
+  setPicture: React.Dispatch<React.SetStateAction<string>>,
 ) => {
   setLoading(true);
-  setTimeout(() => {
-    setLoading(false);
-  }, 1500);
 
   if (cameraRef.current) {
     try {
@@ -43,23 +49,12 @@ export const takePicture = async (
       const picture = await cameraRef.current.takePictureAsync(options);
 
       if (picture) {
-        const namePhoto = `photo_${Date.now()}.jpg`;
-        const filename = FileSystem.documentDirectory + namePhoto;
-
-        await FileSystem.copyAsync({ from: picture.uri, to: filename });
-        const asset = await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
-
-        console.log(picture.uri)
-
-        if (asset) {
-          const downloadURL = await uploadFile(picture.uri, namePhoto);
-          if (downloadURL) {
-            await sendToBackend(downloadURL, asset.width, asset.height, MediaTypePicture);
-          }
-        }
+        setPicture(picture.uri)
       }
     } catch (error) {
       Alert.alert("Error al guardar", "Ha ocurrido un error al guardar la foto")
+    } finally {
+      setLoading(false)
     }
   }
 };
@@ -68,9 +63,8 @@ export const takeVideo = async (
   cameraRef: React.MutableRefObject<CameraView | null>,
   isRecording: boolean,
   setIsRecording: Dispatch<SetStateAction<boolean>>,
-  mediaLibraryPermission: MediaLibrary.PermissionResponse,
-  requestMediaLibraryPermission: () => Promise<MediaLibrary.PermissionResponse>,
   setLoading: Dispatch<SetStateAction<boolean>>,
+  setVideo: React.Dispatch<React.SetStateAction<string>>
 ) => {
   setLoading(true);
   setTimeout(() => {
@@ -86,22 +80,52 @@ export const takeVideo = async (
         setIsRecording(true);
         const video = await cameraRef.current.recordAsync();
         if (video) {
-          const videoName = `video_${Date.now()}.mp4`;
-          const filename = FileSystem.documentDirectory + videoName;
-          await FileSystem.copyAsync({ from: video.uri, to: filename });
-          const asset = await saveToLibrary(filename, mediaLibraryPermission, requestMediaLibraryPermission);
-
-          if (asset) {
-            const downloadURL = await uploadFile(video.uri, videoName);
-            if (downloadURL) {
-              await sendToBackend(downloadURL, asset?.width, asset?.height, MediaTypeVideo);
-            }
-          }
+          setVideo(video.uri)
         }
       }
     } catch (error) {
       Alert.alert("Error al guardar", "Ha ocurrido un error al guardar el video")
       setIsRecording(false);
     }
+  }
+};
+
+export const pickImage = async (
+  setSuccessUpload: React.Dispatch<React.SetStateAction<boolean>>,
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>
+) => {
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.All,
+    aspect: [4, 3],
+    quality: 1,
+    allowsMultipleSelection: true,
+    selectionLimit: 10,
+  });
+
+  if (!result.canceled) {
+    const totalFiles = result.assets.length;
+
+    for (const asset of result.assets) {
+      if (totalFiles > 1) setUploadStatus(`Subiendo archivos`);
+      else setUploadStatus(`Subiendo archivo`)
+
+      if (asset.uri && asset.fileName) {
+        const downloadURL = await uploadFile(asset.uri, asset.fileName);
+        if (downloadURL) {
+          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture).then(() => {
+            if (totalFiles > 1) {
+              setUploadStatus('Archivos subidos')
+            } else {
+              setUploadStatus('Archivo subido')
+            }
+          })
+        }
+      }
+    }
+    setSuccessUpload(true)
+    setTimeout(() => {
+      setUploadStatus('')
+      setSuccessUpload(false)
+    }, 1000);
   }
 };
