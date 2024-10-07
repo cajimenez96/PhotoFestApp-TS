@@ -52,7 +52,7 @@ export const takePicture = async (
         setPicture(picture.uri)
       }
     } catch (error) {
-      console.log(error)
+      Alert.alert("Error al guardar", "Ha ocurrido un error al guardar la foto")
     } finally {
       setLoading(false)
     }
