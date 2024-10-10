@@ -5,26 +5,20 @@ import { globalStyles } from "../../styles/globalStyles";
 import { cameraIcons } from "../../common/icons";
 import { QRScannerData } from "./QRScanner.data";
 import Camera from "../../components/Camera";
-import { login } from "./require";
-import { QRScannerProps } from "./QRScanner.type";
+import { eventUserAssociation } from "./require";
 import Popup from "../../components/Popup";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import { IPayloadLogin } from "../../api/login";
 
-const QRScanner = ({ setUserLogued }: QRScannerProps) => {
+const QRScanner = () => {
   const [scanned, setScanned] = useState<boolean>(false);
   const [flash, setFlash] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
-
-  const [dataLogin, setDataLogin] = useState<IPayloadLogin>({
-    UserName: "",
-    Password: "",
-    eventID: "",
-    email: "",
-  }) 
-  // const [eventId, setEventId] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [eventId, setEventId] = useState<string>("");
   const [newEmail, setNewEmail] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
 
   const handleFlash = () => {
     Vibration.vibrate(500);
@@ -36,12 +30,8 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
     let parsedData;
     try {
       parsedData = JSON.parse(data);
-      setDataLogin({
-        eventID: parsedData.EventID,
-        UserName: parsedData.UserName,
-        Password: parsedData.Password,
-        email: dataLogin.email,
-      })
+      setEventId(parsedData.eventID)
+      setScanned(false);
     } catch (error) {
       Alert.alert("Error", "El código QR escaneado no es válido.", [
         {
@@ -52,56 +42,60 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
       return;
     }
 
-    // setEventId(parsedData.EventID);
     setOpenModal(true);
-    // const response = await login(parsedData);
-
-    // if (response.status === 200) {
-    //   setUserLogued(true);
-    // } else {
-    //   Alert.alert(QRScannerData.userError, "", [
-    //     {
-    //       text: "Aceptar",
-    //       onPress: () => setScanned(false),
-    //     },
-    //   ]);
-    // }
   };
+
+  const isValidEmail = (email: string): boolean => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailPattern.test(email);
+  };
+
+  const uploadUserEvent = async () => {
+    if (!isValidEmail(newEmail)) {
+      setError("Por favor, ingrese un correo electrónico válido.");
+      return;
+    }
+
+    const data = {
+      EventID: eventId,
+      UserName: newEmail
+    }
+    await eventUserAssociation(data, setOpenModal, setLoading, setError)
+  }
 
   const renderModal = () => {
     return (
       <Popup>
         <View>
-          <Text style={{textAlign: 'center'}}>
-            {`Para poder continuar necesito que ingreses su correo electrónico`}
+          <Text style={{ textAlign: 'center' }}>
+            {`Para continuar, por favor ingrese su correo electronico`}
           </Text>
           <Input
-            placeholder="Ingrese su email"
-            style={{marginTop: 50}}
+            placeholder="Ingrese su correo"
+            style={{ marginTop: 50 }}
             onChange={setNewEmail}
           />
 
-          <View style={styles.buttonPopup}>
-            <Button style={{width: 140}} onClick={() => {
-                setDataLogin({
-                  eventID: dataLogin.eventID,
-                  UserName: dataLogin.UserName,
-                  Password: dataLogin.Password,
-                  email: newEmail,
-                });
+          {error && (
+            <Text>{error}</Text>
+          )}
 
+          {loading ? (
+            <ActivityIndicator size="small" color="black" />
+          ) : (
+            <View style={styles.buttonPopup}>
+              <Button style={{ width: 140 }} onClick={uploadUserEvent} >
+                <Text style={styles.textCenter}>Enviar</Text>
+              </Button >
 
-                console.log(dataLogin);
-                
-              }
-            }>
-              <Text style={styles.textCenter}>Enviar</Text>
-            </Button>
-
-            <Button style={{width: 120}} onClick={() => setOpenModal(false)}>
-              <Text style={styles.textCenter}>Cancelar</Text>
-            </Button>
-          </View>
+              <Button style={{ width: 120 }} onClick={() => {
+                setOpenModal(false);
+                setScanned(false);
+              }}>
+                <Text style={styles.textCenter}>Cancelar</Text>
+              </Button>
+            </View>
+          )}
         </View>
       </Popup>
     )

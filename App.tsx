@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Onboarding from './screen/Onboarding/Onboarding';
+import { getAsyncStorage } from './helpers/helper';
+import { TOKEN } from './common/constants';
 
 const App = () => {
-  const [userLogued, setUserLogued] = useState<boolean>(false)
+  const [userLogued, setUserLogued] = useState<string>("")
   const [onboardingStatus, setOnboardingStatus] = useState<string>("");
 
   useEffect(() => {
@@ -19,11 +21,19 @@ const App = () => {
       }
     };
     checkOnboardingStatus();
+
+    const getToken = async () => {
+      const token = await getAsyncStorage(TOKEN)
+      if (token) {
+        setUserLogued(token)
+      }
+    }
+    getToken()
   }, []);
 
   const renderContent = () => {
     if (onboardingStatus === 'true') {
-      return userLogued ? <CameraScreen /> : <QRScanner setUserLogued={setUserLogued} />;
+      return userLogued ? <CameraScreen /> : <QRScanner />;
     }
 
     return <Onboarding setCompletedOnboarding={setOnboardingStatus} />;

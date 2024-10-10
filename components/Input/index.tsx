@@ -12,6 +12,8 @@ const Input = ({placeholder = "", style, onChange}: IInput) => {
         style={[styles.input, style]}
         onChangeText={onChange}
         placeholder={placeholder}
+        keyboardType="email-address"
+        autoCapitalize="none" 
       />
     </SafeAreaView>
   );
