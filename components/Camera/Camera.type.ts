@@ -9,5 +9,5 @@ export interface ICamera {
   flash?: FlashMode;
   ref?: React.LegacyRef<CameraView>;
   handleBarCodeScanned?: (scanningResult: BarcodeScanningResult) => void;
-  zoom: number;
+  zoom?: number;
 }
