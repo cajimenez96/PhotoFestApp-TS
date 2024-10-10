@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalView: {
-    maxWidth: "85%",
+    maxWidth: "87%",
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 35,

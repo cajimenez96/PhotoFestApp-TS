@@ -21,12 +21,10 @@ const Input = ({placeholder = "", style, onChange}: IInput) => {
 
 const styles = StyleSheet.create({
   input: {
-    height: 52,
-    borderWidth: 1.5,
-    padding: 10,
-    borderRadius: 12,
-    borderColor: "#767676",
-    textAlign: 'center'
+    padding: 2,
+    paddingLeft: 7,
+    borderBottomWidth: 1.5,
+    borderColor: "#000000",
   },
 });
 
