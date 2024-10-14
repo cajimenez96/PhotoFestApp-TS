@@ -1,6 +1,6 @@
 import { CameraView } from 'expo-camera';
-import { useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
@@ -12,6 +12,7 @@ import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
 import { CameraActionButtonProps } from './CameraScreen.type';
 import ModalPreview from '../../components/ModalPreview/ModalPreview';
+import NetInfo from '@react-native-community/netinfo';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -22,15 +23,34 @@ const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
 }
 
 const CameraScreen = () => {
-  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
+  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom, setIsConnectedToWifi, isConnectedToWifi } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [mediaLibraryPermission] = MediaLibrary.usePermissions();
   const [successUpload, setSuccessUpload] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
-
   const [picture, setPicture] = useState<string>('');
   const [video, setVideo] = useState<string>('');
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnectedToWifi(state.isConnected);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  console.log(isConnectedToWifi)
+
+  useEffect(() => {
+    if (isConnectedToWifi === false) {
+      Alert.alert(
+        'No hay conexión',
+        'Las fotos y videos que captures no se subirán a la red, pero se guardarán en tu galería local.',
+        [{ text: 'Aceptar' }]
+      )
+    }
+  }, [isConnectedToWifi]);
 
   if (!mediaLibraryPermission) {
     return <View />;

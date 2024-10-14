@@ -28,14 +28,15 @@ export const uploadMedia = async (
 
   const connection = await NetInfo.fetch();
 
-  if (connection.isConnected) {
-    if (asset) {
-      const downloadURL = await uploadFile(mediaUri, name);
-      if (downloadURL) {
-        await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo);
-      }
+  if (!connection.isConnected) return;
+
+  if (asset) {
+    const downloadURL = await uploadFile(mediaUri, name);
+    if (downloadURL) {
+      await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo);
     }
   }
+
 };
 
 export const takePicture = async (
@@ -112,36 +113,38 @@ export const pickImage = async (
 
   const connection = await NetInfo.fetch();
 
-  if (connection.isConnected) {
-    if (!result.canceled) {
-      const totalFiles = result.assets.length;
-      for (const asset of result.assets) {
-        if (totalFiles > 1) setUploadStatus(`Subiendo archivos`);
-        else setUploadStatus(`Subiendo archivo`)
-        if (asset.uri && asset.fileName) {
-          const downloadURL = await uploadFile(asset.uri, asset.fileName);
-          if (downloadURL) {
-            await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture).then(() => {
-              if (totalFiles > 1) {
-                setUploadStatus('Archivos subidos')
-              } else {
-                setUploadStatus('Archivo subido')
-              }
-            })
-          }
-        }
-      }
-      setSuccessUpload(true)
-      setTimeout(() => {
-        setUploadStatus('')
-        setSuccessUpload(false)
-      }, 1000);
-    }
-  } else {
+  if (!connection.isConnected) {
     Alert.alert(
       "No hay conexión",
       "Por favor, conéctese a una red para poder subir un archivo",
       [{ text: "Aceptar" }]
-    );    
+    );
+    return;
   }
-};
+
+  if (!result.canceled) {
+    const totalFiles = result.assets.length;
+    for (const asset of result.assets) {
+      if (totalFiles > 1) setUploadStatus(`Subiendo archivos`);
+      else setUploadStatus(`Subiendo archivo`)
+      if (asset.uri && asset.fileName) {
+        const downloadURL = await uploadFile(asset.uri, asset.fileName);
+        if (downloadURL) {
+          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture).then(() => {
+            if (totalFiles > 1) {
+              setUploadStatus('Archivos subidos')
+            } else {
+              setUploadStatus('Archivo subido')
+            }
+          })
+        }
+      }
+    }
+    setSuccessUpload(true)
+    setTimeout(() => {
+      setUploadStatus('')
+      setSuccessUpload(false)
+    }, 1000);
+  }
+}
+
