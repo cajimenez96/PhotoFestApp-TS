@@ -46,19 +46,18 @@ const CameraScreen = () => {
 
   const handlePickImage = async () => {
     await pickImage(
-      setSuccessUpload, 
-      setUploadStatus, 
+      setSuccessUpload,
+      setUploadStatus,
     );
   };
 
   if (picture) {
-    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture'/>
+    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture' />
   }
 
   if (video) {
-    return <ModalPreview media={video} setMedia={setVideo} mediaType='video'/>
+    return <ModalPreview media={video} setMedia={setVideo} mediaType='video' />
   }
-
 
   return (
     <View style={globalStyles.container}>
@@ -100,15 +99,33 @@ const CameraScreen = () => {
           </View>
           <View style={styles.buttonBot}>
             <CameraActionButton
-              onPress={isRecording ? () => {}  : toggleCameraModeVideo}
+              onPress={isRecording ? () => { } : toggleCameraModeVideo}
               img={mode === VIDEO ? cameraIcons.videoModeDark : cameraIcons.videoMode}
             />
             <CameraActionButton
-              onPress={isRecording ? () => {}  : toggleCameraModePhoto}
+              onPress={isRecording ? () => { } : toggleCameraModePhoto}
               img={mode === PICTURE ? cameraIcons.pictureModeDark : cameraIcons.pictureMode}
             />
           </View>
         </View>
+        {cameraRef &&
+          <>
+            {zoom !== 0 &&
+              <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
+            }
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={1}
+              value={zoom}
+              onValueChange={setZoom}
+              step={0.1}
+              minimumTrackTintColor="#ffffff"
+              maximumTrackTintColor="#ffffff"
+              thumbTintColor='#ffffff'
+            />
+          </>
+        }
       </Camera>
       {uploadStatus && (
         <View style={styles.loaderContainer}>
@@ -122,24 +139,7 @@ const CameraScreen = () => {
         </View>
       )
       }
-      {cameraRef &&
-        <>
-          {zoom !== 0 &&
-            <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
-          }
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={1}
-            value={zoom}
-            onValueChange={setZoom}
-            step={0.1}
-            minimumTrackTintColor="#ffffff"
-            maximumTrackTintColor="#ffffff"
-            thumbTintColor='#ffffff'
-          />
-        </>
-      }
+
     </View>
   );
 }
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     width: 45,
   },
   slider: {
-    width: '80%',
+    width: '88%',
     height: 40,
     position: 'absolute',
     bottom: 180,
