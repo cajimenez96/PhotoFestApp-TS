@@ -40,8 +40,6 @@ const CameraScreen = () => {
     return () => unsubscribe();
   }, []);
 
-  console.log(isConnectedToWifi)
-
   useEffect(() => {
     if (isConnectedToWifi === false) {
       Alert.alert(
