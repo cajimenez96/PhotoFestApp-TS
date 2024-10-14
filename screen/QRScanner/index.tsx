@@ -9,6 +9,7 @@ import { eventUserAssociation } from "./require";
 import Popup from "../../components/Popup";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
+import { isValidEmail } from "../../common/validations";
 
 const QRScanner = () => {
   const [scanned, setScanned] = useState<boolean>(false);
@@ -45,11 +46,6 @@ const QRScanner = () => {
     setOpenModal(true);
   };
 
-  const isValidEmail = (email: string): boolean => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email);
-  };
-
   const uploadUserEvent = async () => {
     if (!isValidEmail(newEmail)) {
       setError("Por favor, ingrese un correo electrónico válido.");
@@ -63,39 +59,44 @@ const QRScanner = () => {
     await eventUserAssociation(data, setOpenModal, setLoading, setError)
   }
 
+  const cancelFunction = () => {
+    setOpenModal(false);
+    setScanned(false);
+    setError("");
+  }
+
   const renderModal = () => {
     return (
       <Popup>
         <View>
-          <Text style={{ textAlign: 'center' }}>
+          <Text style={styles.title}>
             {`Para continuar, por favor ingrese su correo electronico`}
           </Text>
           <Input
             placeholder="Ingrese su correo"
-            style={{ marginTop: 50 }}
+            style={styles.input}
             onChange={setNewEmail}
           />
 
           {error && (
-            <Text>{error}</Text>
+            <Text style={styles.textError}>{error}</Text>
           )}
 
-          {loading ? (
-            <ActivityIndicator size="small" color="black" />
-          ) : (
-            <View style={styles.buttonPopup}>
-              <Button style={{ width: 140 }} onClick={uploadUserEvent} >
-                <Text style={styles.textCenter}>Enviar</Text>
-              </Button >
+          <View style={styles.buttonPopup}>
+            {loading ? (
+              <ActivityIndicator size="large" color="black" />
+            ) : (
+              <>
+                <Button style={[styles.buttons]} onClick={uploadUserEvent} >
+                  <Text style={styles.textCenter}>Enviar</Text>
+                </Button >
 
-              <Button style={{ width: 120 }} onClick={() => {
-                setOpenModal(false);
-                setScanned(false);
-              }}>
-                <Text style={styles.textCenter}>Cancelar</Text>
-              </Button>
-            </View>
-          )}
+                <Button style={[styles.buttons, styles.buttonCancel]} onClick={cancelFunction}>
+                  <Text style={styles.textCenter}>Cancelar</Text>
+                </Button>
+              </>
+            )}
+          </View>
         </View>
       </Popup>
     )
@@ -165,12 +166,32 @@ const styles = StyleSheet.create({
   },
   buttonPopup: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 50
+    justifyContent: 'center',
   },
   textCenter: {
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+    color: "white",
+  },
+  title: {
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 15.3,
+  },
+  buttons: {
+    width: 100,
+  },
+  buttonCancel: {
+    marginLeft: 20,
+    backgroundColor: "#262626",
+  },
+  input: {
+    marginTop: 80,
+    marginBottom: 90,
+  },
+  textError: {
+    color: "red",
+    bottom: 70,
+  },
 });
 
 
