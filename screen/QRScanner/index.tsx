@@ -5,12 +5,21 @@ import { globalStyles } from "../../styles/globalStyles";
 import { cameraIcons } from "../../common/icons";
 import { QRScannerData } from "./QRScanner.data";
 import Camera from "../../components/Camera";
-import { login } from "./require";
-import { QRScannerProps } from "./QRScanner.type";
+import { eventUserAssociation } from "./require";
+import Popup from "../../components/Popup";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
+import { isValidEmail } from "../../common/validations";
 
-const QRScanner = ({ setUserLogued }: QRScannerProps) => {
+const QRScanner = () => {
   const [scanned, setScanned] = useState<boolean>(false);
   const [flash, setFlash] = useState<boolean>(false);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [eventId, setEventId] = useState<string>("");
+  const [newEmail, setNewEmail] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
 
   const handleFlash = () => {
     Vibration.vibrate(500);
@@ -22,6 +31,8 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
     let parsedData;
     try {
       parsedData = JSON.parse(data);
+      setEventId(parsedData.eventID)
+      setScanned(false);
     } catch (error) {
       Alert.alert("Error", "El código QR escaneado no es válido.", [
         {
@@ -32,19 +43,64 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
       return;
     }
 
-    const response = await login(parsedData);
-
-    if (response.status === 200) {
-      setUserLogued(true);
-    } else {
-      Alert.alert(QRScannerData.userError, "", [
-        {
-          text: "Aceptar",
-          onPress: () => setScanned(false),
-        },
-      ]);
-    }
+    setOpenModal(true);
   };
+
+  const uploadUserEvent = async () => {
+    if (!isValidEmail(newEmail)) {
+      setError("Por favor, ingrese un correo electrónico válido.");
+      return;
+    }
+
+    const data = {
+      EventID: eventId,
+      UserName: newEmail
+    }
+    await eventUserAssociation(data, setOpenModal, setLoading, setError)
+  }
+
+  const cancelFunction = () => {
+    setOpenModal(false);
+    setScanned(false);
+    setError("");
+  }
+
+  const renderModal = () => {
+    return (
+      <Popup>
+        <View>
+          <Text style={styles.title}>
+            {`Para continuar, por favor ingrese su correo electronico`}
+          </Text>
+          <Input
+            placeholder="Ingrese su correo"
+            style={styles.input}
+            onChange={setNewEmail}
+          />
+
+          {error && (
+            <Text style={styles.textError}>{error}</Text>
+          )}
+
+          <View style={styles.buttonPopup}>
+            {loading ? (
+              <ActivityIndicator size="large" color="black" />
+            ) : (
+              <>
+                <Button style={[styles.buttons]} onClick={uploadUserEvent} >
+                  <Text style={styles.textCenter}>Enviar</Text>
+                </Button >
+
+                <Button style={[styles.buttons, styles.buttonCancel]} onClick={cancelFunction}>
+                  <Text style={styles.textCenter}>Cancelar</Text>
+                </Button>
+              </>
+            )}
+          </View>
+        </View>
+      </Popup>
+    )
+  }
 
   return (
     <View style={globalStyles.container}>
@@ -73,6 +129,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
           </View>
         </Camera>
       )}
+      {openModal && renderModal()}
     </View>
   );
 }
@@ -106,6 +163,34 @@ const styles = StyleSheet.create({
   flash: {
     borderRadius: 100,
     padding: 5,
+  },
+  buttonPopup: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  textCenter: {
+    textAlign: 'center',
+    color: "white",
+  },
+  title: {
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 15.3,
+  },
+  buttons: {
+    width: 100,
+  },
+  buttonCancel: {
+    marginLeft: 20,
+    backgroundColor: "#262626",
+  },
+  input: {
+    marginTop: 80,
+    marginBottom: 90,
+  },
+  textError: {
+    color: "red",
+    bottom: 70,
   },
 });
 

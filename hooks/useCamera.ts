@@ -26,9 +26,20 @@ const useCamera = () => {
       return newFacing;
     });
   };
-  const toggleCameraMode = () => {
-    setMode(current => {
-      const newMode = current === PICTURE ? VIDEO : PICTURE
+  
+  const toggleCameraModePhoto = () => {
+    setMode(PICTURE)
+    if (flash === FLASHON) {
+      setFlash(FLASHOFF);
+      setTimeout(() => {
+        setFlash(FLASHON);
+      }, 100);
+    }
+    setZoom(0)
+  }
+
+  const toggleCameraModeVideo = () => {
+    setMode(VIDEO)
       if (flash === FLASHON) {
         setFlash(FLASHOFF);
         setTimeout(() => {
@@ -36,8 +47,6 @@ const useCamera = () => {
         }, 100);
       }
       setZoom(0)
-      return newMode
-    });
   }
 
   return {
@@ -50,7 +59,8 @@ const useCamera = () => {
     setMode,
     isRecording,
     setIsRecording,
-    toggleCameraMode,
+    toggleCameraModeVideo,
+    toggleCameraModePhoto,
     setZoom,
     zoom
   }
