@@ -8,8 +8,6 @@ const useCamera = () => {
   const [mode, setMode] = useState<CameraMode>(PICTURE);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [zoom, setZoom] = useState(0);
-  const [isConnectedToWifi, setIsConnectedToWifi] = useState<boolean | null>(true);
-
 
   const toggleFlash = () => {
     setFlash(current => (current === FLASHOFF ? FLASHON : FLASHOFF));
@@ -64,9 +62,7 @@ const useCamera = () => {
     toggleCameraModeVideo,
     toggleCameraModePhoto,
     setZoom,
-    zoom,
-    setIsConnectedToWifi,
-    isConnectedToWifi
+    zoom
   }
 }
 

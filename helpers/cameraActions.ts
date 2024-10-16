@@ -7,8 +7,6 @@ import { CameraView } from 'expo-camera';
 import { MediaTypePicture, MediaTypeVideo, VIDEO } from '../common/constants';
 import { Alert } from 'react-native';
 import * as ImagePicker from "expo-image-picker"
-import NetInfo from '@react-native-community/netinfo';
-
 
 const saveToLibrary = async (filename: string) => {
   const asset = await MediaLibrary.createAssetAsync(filename);
@@ -16,9 +14,7 @@ const saveToLibrary = async (filename: string) => {
   return asset;
 };
 
-export const uploadMedia = async (
-  mediaUri: string, type: "picture" | 'video',
-) => {
+export const uploadMedia = async (mediaUri: string, type: "picture" | 'video') => {
   const isPhoto = type === "picture";
   const name = isPhoto ? `photo_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
   const filename = FileSystem.documentDirectory + name;
@@ -26,17 +22,12 @@ export const uploadMedia = async (
   await FileSystem.copyAsync({ from: mediaUri, to: filename });
   const asset = await saveToLibrary(filename);
 
-  const connection = await NetInfo.fetch();
-
-  if (!connection.isConnected) return;
-
   if (asset) {
     const downloadURL = await uploadFile(mediaUri, name);
     if (downloadURL) {
       await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo);
     }
   }
-
 };
 
 export const takePicture = async (
@@ -73,7 +64,7 @@ export const takeVideo = async (
   isRecording: boolean,
   setIsRecording: Dispatch<SetStateAction<boolean>>,
   setLoading: Dispatch<SetStateAction<boolean>>,
-  setVideo: React.Dispatch<React.SetStateAction<string>>,
+  setVideo: React.Dispatch<React.SetStateAction<string>>
 ) => {
   setLoading(true);
   setTimeout(() => {
@@ -101,7 +92,7 @@ export const takeVideo = async (
 
 export const pickImage = async (
   setSuccessUpload: React.Dispatch<React.SetStateAction<boolean>>,
-  setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>
 ) => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -111,22 +102,13 @@ export const pickImage = async (
     selectionLimit: 10,
   });
 
-  const connection = await NetInfo.fetch();
-
-  if (!connection.isConnected) {
-    Alert.alert(
-      "No hay conexión",
-      "Por favor, conéctese a una red para poder subir un archivo",
-      [{ text: "Aceptar" }]
-    );
-    return;
-  }
-
   if (!result.canceled) {
     const totalFiles = result.assets.length;
+
     for (const asset of result.assets) {
       if (totalFiles > 1) setUploadStatus(`Subiendo archivos`);
       else setUploadStatus(`Subiendo archivo`)
+
       if (asset.uri && asset.fileName) {
         const downloadURL = await uploadFile(asset.uri, asset.fileName);
         if (downloadURL) {
@@ -146,5 +128,4 @@ export const pickImage = async (
       setSuccessUpload(false)
     }, 1000);
   }
-}
-
+};

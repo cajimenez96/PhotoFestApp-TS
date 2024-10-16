@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "401990471479",
+    "project_id": "festbook-d8bd6",
+    "storage_bucket": "festbook-d8bd6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401990471479:android:fdf688ba0f91171c0f14b2",
+        "android_client_info": {
+          "package_name": "com.synergy.photofest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBj0goBx5o_5sJtOhFpNHPIR6l_7bWqMf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

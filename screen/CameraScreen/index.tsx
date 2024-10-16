@@ -1,6 +1,6 @@
 import { CameraView } from 'expo-camera';
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+import { useRef, useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
@@ -12,7 +12,6 @@ import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
 import { CameraActionButtonProps } from './CameraScreen.type';
 import ModalPreview from '../../components/ModalPreview/ModalPreview';
-import NetInfo from '@react-native-community/netinfo';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -23,32 +22,15 @@ const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
 }
 
 const CameraScreen = () => {
-  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom, setIsConnectedToWifi, isConnectedToWifi } = useCamera();
+  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [mediaLibraryPermission] = MediaLibrary.usePermissions();
   const [successUpload, setSuccessUpload] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
+
   const [picture, setPicture] = useState<string>('');
   const [video, setVideo] = useState<string>('');
-
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
-      setIsConnectedToWifi(state.isConnected);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (isConnectedToWifi === false) {
-      Alert.alert(
-        'No hay conexión',
-        'Las fotos y videos que captures no se subirán a la red, pero se guardarán en tu galería local.',
-        [{ text: 'Aceptar' }]
-      )
-    }
-  }, [isConnectedToWifi]);
 
   if (!mediaLibraryPermission) {
     return <View />;
@@ -64,18 +46,19 @@ const CameraScreen = () => {
 
   const handlePickImage = async () => {
     await pickImage(
-      setSuccessUpload,
-      setUploadStatus,
+      setSuccessUpload, 
+      setUploadStatus, 
     );
   };
 
   if (picture) {
-    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture' />
+    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture'/>
   }
 
   if (video) {
-    return <ModalPreview media={video} setMedia={setVideo} mediaType='video' />
+    return <ModalPreview media={video} setMedia={setVideo} mediaType='video'/>
   }
+
 
   return (
     <View style={globalStyles.container}>
@@ -117,33 +100,15 @@ const CameraScreen = () => {
           </View>
           <View style={styles.buttonBot}>
             <CameraActionButton
-              onPress={isRecording ? () => { } : toggleCameraModeVideo}
+              onPress={isRecording ? () => {}  : toggleCameraModeVideo}
               img={mode === VIDEO ? cameraIcons.videoModeDark : cameraIcons.videoMode}
             />
             <CameraActionButton
-              onPress={isRecording ? () => { } : toggleCameraModePhoto}
+              onPress={isRecording ? () => {}  : toggleCameraModePhoto}
               img={mode === PICTURE ? cameraIcons.pictureModeDark : cameraIcons.pictureMode}
             />
           </View>
         </View>
-        {cameraRef &&
-          <>
-            {zoom !== 0 &&
-              <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
-            }
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={1}
-              value={zoom}
-              onValueChange={setZoom}
-              step={0.1}
-              minimumTrackTintColor="#ffffff"
-              maximumTrackTintColor="#ffffff"
-              thumbTintColor='#ffffff'
-            />
-          </>
-        }
       </Camera>
       {uploadStatus && (
         <View style={styles.loaderContainer}>
@@ -157,7 +122,24 @@ const CameraScreen = () => {
         </View>
       )
       }
-
+      {cameraRef &&
+        <>
+          {zoom !== 0 &&
+            <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
+          }
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={1}
+            value={zoom}
+            onValueChange={setZoom}
+            step={0.1}
+            minimumTrackTintColor="#ffffff"
+            maximumTrackTintColor="#ffffff"
+            thumbTintColor='#ffffff'
+          />
+        </>
+      }
     </View>
   );
 }
@@ -224,7 +206,7 @@ const styles = StyleSheet.create({
     width: 45,
   },
   slider: {
-    width: '88%',
+    width: '80%',
     height: 40,
     position: 'absolute',
     bottom: 180,
