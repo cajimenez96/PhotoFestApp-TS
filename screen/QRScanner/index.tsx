@@ -10,6 +10,7 @@ import Popup from "../../components/Popup";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { isValidEmail } from "../../common/validations";
+import NetInfo from '@react-native-community/netinfo';
 
 const QRScanner = () => {
   const [scanned, setScanned] = useState<boolean>(false);
@@ -27,7 +28,20 @@ const QRScanner = () => {
   }
 
   const barCodeScanned = async ({ data }: BarcodeScanningResult) => {
+    const connection = await NetInfo.fetch();
     setScanned(true);
+    if (!connection.isConnected) {
+      Alert.alert(
+        'No hay conexión',
+        'Para escanear el código QR, debes tener conexión a internet.',
+        [
+          {
+            text: "Aceptar",
+            onPress: () => setScanned(false),
+          },
+        ])
+      return;
+    }
     let parsedData;
     try {
       parsedData = JSON.parse(data);
