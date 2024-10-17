@@ -11,3 +11,5 @@ export const MediaTypeVideo = "66c67d96ea5324ba7ccb9147";
 export const TOKEN = 'userToken';
 export const EVENT_ID = 'eventId';
 export const USER_ID = 'userId';
+
+export const SUCESSUPLOAD = 'Archivo subido';

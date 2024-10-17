@@ -17,7 +17,7 @@ const ModalButtons = ({ img, onPress }: ModalButtonsProps) => {
   )
 }
 
-const ModalPreview = ({ media, setMedia, mediaType }: ModalPreviewProps) => {
+const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus }: ModalPreviewProps) => {
   const videoRef = useRef<Video>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
@@ -32,7 +32,7 @@ const ModalPreview = ({ media, setMedia, mediaType }: ModalPreviewProps) => {
 
   const confirmMedia = async () => {
     setMedia("");
-    await uploadMedia(media, mediaType === 'picture' ? PICTURE : VIDEO);
+    await uploadMedia(media, mediaType === 'picture' ? PICTURE : VIDEO, setUploadStatus);
   };
 
   const togglePlayback = async () => {

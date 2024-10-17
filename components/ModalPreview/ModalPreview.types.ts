@@ -1,9 +1,10 @@
 import { ImageSourcePropType } from "react-native";
 
 export type ModalPreviewProps = {
-  media: string, 
+  media: string,
   setMedia: (value: string) => void,
   mediaType: 'picture' | 'video'
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
 }
 
 export type ModalButtonsProps = {
