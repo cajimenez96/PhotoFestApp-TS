@@ -8,7 +8,7 @@ import { getAsyncStorage } from './helpers/helper';
 import { TOKEN } from './common/constants';
 
 const App = () => {
-  const [userLogued, setUserLogued] = useState<string>("")
+  const [userLogued, setUserLogued] = useState<boolean>(false)
   const [onboardingStatus, setOnboardingStatus] = useState<string>("");
 
   useEffect(() => {
@@ -25,15 +25,15 @@ const App = () => {
     const getToken = async () => {
       const token = await getAsyncStorage(TOKEN)
       if (token) {
-        setUserLogued(token)
+        setUserLogued(true)
       }
     }
     getToken()
-  }, []);
+  }, [userLogued]);
 
   const renderContent = () => {
     if (onboardingStatus === 'true') {
-      return userLogued ? <CameraScreen /> : <QRScanner />;
+      return userLogued ? <CameraScreen /> : <QRScanner setUserLogued={setUserLogued}/>;
     }
 
     return <Onboarding setCompletedOnboarding={setOnboardingStatus} />;

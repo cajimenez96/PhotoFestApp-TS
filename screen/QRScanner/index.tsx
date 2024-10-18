@@ -11,8 +11,9 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { isValidEmail } from "../../common/validations";
 import NetInfo from '@react-native-community/netinfo';
+import { QRScannerProps } from "./QRScanner.type";
 
-const QRScanner = () => {
+const QRScanner = ({setUserLogued}: QRScannerProps) => {
   const [scanned, setScanned] = useState<boolean>(false);
   const [flash, setFlash] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -20,8 +21,7 @@ const QRScanner = () => {
   const [eventId, setEventId] = useState<string>("");
   const [newEmail, setNewEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
-
-
+  
   const handleFlash = () => {
     Vibration.vibrate(500);
     setFlash(!flash);
@@ -70,7 +70,7 @@ const QRScanner = () => {
       EventID: eventId,
       UserName: newEmail
     }
-    await eventUserAssociation(data, setOpenModal, setLoading, setError)
+    await eventUserAssociation(data, setOpenModal, setLoading, setError, setUserLogued)
   }
 
   const cancelFunction = () => {

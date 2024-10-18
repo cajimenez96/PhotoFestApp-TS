@@ -6,7 +6,8 @@ export const eventUserAssociation = async (
   data: IPayloadUserEventAssociation,
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setError: React.Dispatch<React.SetStateAction<string>>
+  setError: React.Dispatch<React.SetStateAction<string>>,
+  setUserLogued: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const { EventID } = data
   try {
@@ -20,6 +21,7 @@ export const eventUserAssociation = async (
     setAsyncStorage(TOKEN, response.data.token);
     setAsyncStorage(USER_ID, response.data.user._id);
     setAsyncStorage(EVENT_ID, EventID)
+    setUserLogued(true)
     setOpenModal(false)
 
     return ({ status: 200, message: "Usuario logueado" })
