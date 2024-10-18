@@ -1,7 +1,7 @@
 import { MediafileRequest } from "../../api/mediafile"
 import { Alert } from "react-native"
-import { getAsyncStorage } from "../../helpers/helper";
-import { EVENT_ID, USER_ID } from "../../common/constants";
+import { getAsyncStorage, setAsyncStorage } from "../../helpers/helper";
+import { EVENT_ID, USER_ID, TOKEN } from "../../common/constants";
 
 export async function sendToBackend(downloadURL: string, width: number, height: number, mediaTypeId: string) {
   const userId = await getAsyncStorage(USER_ID) ?? '';
@@ -37,4 +37,8 @@ export async function sendToBackend(downloadURL: string, width: number, height: 
         ]);
       }
     })
+}
+
+export async function logout() {
+  await setAsyncStorage(TOKEN, '');
 }

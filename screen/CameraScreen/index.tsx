@@ -10,9 +10,11 @@ import Camera from '../../components/Camera';
 import { pickImage, takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
-import { CameraActionButtonProps } from './CameraScreen.type';
+import { CameraActionButtonProps, CameraScreenProps } from './CameraScreen.type';
 import ModalPreview from '../../components/ModalPreview/ModalPreview';
 import NetInfo from '@react-native-community/netinfo';
+import { logout } from './require';
+import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -22,12 +24,13 @@ const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   )
 }
 
-const CameraScreen = () => {
+const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom, setIsConnectedToWifi, isConnectedToWifi } = useCamera();
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [mediaLibraryPermission] = MediaLibrary.usePermissions();
   const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [logoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
   const [picture, setPicture] = useState<string>('');
   const [video, setVideo] = useState<string>('');
 
@@ -68,6 +71,11 @@ const CameraScreen = () => {
     );
   };
 
+  const handleLogout = async () => {
+    await logout();
+    setUserLogued(false);
+  }
+
   if (picture) {
     return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture' setUploadStatus={setUploadStatus} />
   }
@@ -91,6 +99,11 @@ const CameraScreen = () => {
           <CameraButton
             onPress={toggleFlash}
             source={flash === FLASHOFF ? cameraIcons.flashOffImg : cameraIcons.flashImg}
+            typeDispatch={false}
+          />
+          <CameraButton
+            onPress={() => setLogoutModalVisible(true)}
+            source={cameraIcons.exit}
             typeDispatch={false}
           />
         </View>
@@ -152,6 +165,34 @@ const CameraScreen = () => {
         </View>
       )
       }
+      {cameraRef &&
+        <>
+          {zoom !== 0 &&
+            <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
+          }
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={1}
+            value={zoom}
+            onValueChange={setZoom}
+            step={0.1}
+            minimumTrackTintColor="#ffffff"
+            maximumTrackTintColor="#ffffff"
+            thumbTintColor='#ffffff'
+          />
+        </>
+      }
+      <View
+        style={styles.modalContainer}
+      >
+      <ConfirmationModal
+        modalVisible={logoutModalVisible}
+        setModalVisible={setLogoutModalVisible}
+        onConfirm={handleLogout}
+        confirmationMessage='¿Desea cerrar sesión?'
+      />
+      </View>
     </View>
   );
 }
@@ -164,7 +205,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flashView: {
-    alignItems: "flex-end",
+    flexDirection: 'row',
+    justifyContent: "space-between",
   },
   buttonContainer: {
     position: 'absolute',
@@ -249,5 +291,8 @@ const styles = StyleSheet.create({
   textUploading: {
     fontSize: 12,
     paddingRight: 6,
+  },
+  modalContainer: {
+    position: 'absolute',
   },
 });
