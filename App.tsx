@@ -33,7 +33,7 @@ const App = () => {
 
   const renderContent = () => {
     if (onboardingStatus === 'true') {
-      return userLogued ? <CameraScreen /> : <QRScanner setUserLogued={setUserLogued}/>;
+      return userLogued ? <CameraScreen setUserLogued={setUserLogued}/> : <QRScanner setUserLogued={setUserLogued}/>;
     }
 
     return <Onboarding setCompletedOnboarding={setOnboardingStatus} />;
