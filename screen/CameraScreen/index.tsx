@@ -1,8 +1,8 @@
 import { CameraView } from 'expo-camera';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import useCamera from '../../hooks/useCamera';
-import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
+import {  FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
@@ -27,7 +27,6 @@ const CameraScreen = () => {
   const cameraRef = useRef<CameraView>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [mediaLibraryPermission] = MediaLibrary.usePermissions();
-  const [successUpload, setSuccessUpload] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
   const [picture, setPicture] = useState<string>('');
   const [video, setVideo] = useState<string>('');
@@ -64,17 +63,17 @@ const CameraScreen = () => {
 
   const handlePickImage = async () => {
     await pickImage(
-      setSuccessUpload,
+
       setUploadStatus,
     );
   };
 
   if (picture) {
-    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture' />
+    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture' setUploadStatus={setUploadStatus} />
   }
 
   if (video) {
-    return <ModalPreview media={video} setMedia={setVideo} mediaType='video' />
+    return <ModalPreview media={video} setMedia={setVideo} mediaType='video' setUploadStatus={setUploadStatus} />
   }
 
 
@@ -149,12 +148,7 @@ const CameraScreen = () => {
       {uploadStatus && (
         <View style={styles.loaderContainer}>
           <Text style={styles.textUploading}>{uploadStatus}</Text>
-          {!successUpload ? (
-            <ActivityIndicator size="small" color="#000000" />
-          ) : (
-            <Image style={styles.success} source={cameraIcons.successIcon} />
-          )
-          }
+          <Image style={styles.success} source={cameraIcons.successIcon} />
         </View>
       )
       }

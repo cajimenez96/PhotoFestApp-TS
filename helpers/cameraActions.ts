@@ -4,7 +4,7 @@ import { uploadFile } from '../firebase/firebase.config';
 import { sendToBackend } from '../screen/CameraScreen/require';
 import { Dispatch, SetStateAction } from 'react';
 import { CameraView } from 'expo-camera';
-import { MediaTypePicture, MediaTypeVideo, VIDEO } from '../common/constants';
+import { MediaTypePicture, MediaTypeVideo, PICTURE, SUCESSUPLOAD, VIDEO } from '../common/constants';
 import { Alert } from 'react-native';
 import * as ImagePicker from "expo-image-picker"
 import NetInfo from '@react-native-community/netinfo';
@@ -17,9 +17,10 @@ const saveToLibrary = async (filename: string) => {
 
 export const uploadMedia = async (
   mediaUri: string,
-  type: "picture" | 'video',
+  type: 'picture' | 'video',
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>
 ) => {
-  const isPhoto = type === "picture";
+  const isPhoto = type === PICTURE;
   const name = isPhoto ? `photo_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
   const filename = FileSystem.documentDirectory + name;
 
@@ -33,8 +34,14 @@ export const uploadMedia = async (
   if (asset) {
     const downloadURL = await uploadFile(mediaUri, name);
     if (downloadURL) {
-      await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo);
+      await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo)
+        .then(() => {
+          setUploadStatus(SUCESSUPLOAD)
+        })
     }
+    setTimeout(() => {
+      setUploadStatus('')
+    }, 1000);
   }
 };
 
@@ -99,7 +106,6 @@ export const takeVideo = async (
 };
 
 export const pickImage = async (
-  setSuccessUpload: React.Dispatch<React.SetStateAction<boolean>>,
   setUploadStatus: React.Dispatch<React.SetStateAction<string>>
 ) => {
   let result = await ImagePicker.launchImageLibraryAsync({
@@ -122,29 +128,19 @@ export const pickImage = async (
   }
 
   if (!result.canceled) {
-    const totalFiles = result.assets.length;
-
     for (const asset of result.assets) {
-      if (totalFiles > 1) setUploadStatus(`Subiendo archivos`);
-      else setUploadStatus(`Subiendo archivo`)
-
       if (asset.uri && asset.fileName) {
         const downloadURL = await uploadFile(asset.uri, asset.fileName);
         if (downloadURL) {
           await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture).then(() => {
-            if (totalFiles > 1) {
-              setUploadStatus('Archivos subidos')
-            } else {
-              setUploadStatus('Archivo subido')
-            }
+            setUploadStatus(SUCESSUPLOAD)
           })
         }
       }
     }
-    setSuccessUpload(true)
     setTimeout(() => {
       setUploadStatus('')
-      setSuccessUpload(false)
     }, 1000);
   }
-};
+}
+
