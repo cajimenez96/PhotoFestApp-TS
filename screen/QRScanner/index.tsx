@@ -13,7 +13,7 @@ import { isValidEmail } from "../../common/validations";
 import NetInfo from '@react-native-community/netinfo';
 import { QRScannerProps } from "./QRScanner.type";
 
-const QRScanner = ({setUserLogued}: QRScannerProps) => {
+const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   const [scanned, setScanned] = useState<boolean>(false);
   const [flash, setFlash] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -21,13 +21,16 @@ const QRScanner = ({setUserLogued}: QRScannerProps) => {
   const [eventId, setEventId] = useState<string>("");
   const [newEmail, setNewEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
-  
+
   const handleFlash = () => {
     Vibration.vibrate(500);
     setFlash(!flash);
   }
 
   const barCodeScanned = async ({ data }: BarcodeScanningResult) => {
+    if (openModal) {
+      return;
+    }
     const connection = await NetInfo.fetch();
     setScanned(true);
     if (!connection.isConnected) {
