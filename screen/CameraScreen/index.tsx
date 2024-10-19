@@ -2,7 +2,7 @@ import { CameraView } from 'expo-camera';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import useCamera from '../../hooks/useCamera';
-import {  FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
+import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
@@ -126,24 +126,22 @@ const CameraScreen = () => {
             />
           </View>
         </View>
-        {cameraRef &&
-          <>
-            {zoom !== 0 &&
-              <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
-            }
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={1}
-              value={zoom}
-              onValueChange={setZoom}
-              step={0.1}
-              minimumTrackTintColor="#ffffff"
-              maximumTrackTintColor="#ffffff"
-              thumbTintColor='#ffffff'
-            />
-          </>
-        }
+        <View style={styles.sliderContainer}>
+          {zoom !== 0 &&
+            <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
+          }
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={1}
+            value={zoom}
+            onValueChange={setZoom}
+            step={0.1}
+            minimumTrackTintColor="#ffffff"
+            maximumTrackTintColor="#ffffff"
+            thumbTintColor='#ffffff'
+          />
+        </View>
       </Camera>
       {uploadStatus && (
         <View style={styles.loaderContainer}>
@@ -217,18 +215,22 @@ const styles = StyleSheet.create({
     height: 45,
     width: 45,
   },
-  slider: {
-    width: '88%',
-    height: 40,
+  sliderContainer: {
     position: 'absolute',
-    bottom: 180,
-    left: 40,
+    bottom: 185,  
+    left:25,
+    width: '100%',  
+    alignItems: 'center',  
+    zIndex: 1,
+  },
+  slider: {
+    width: '93%', 
+    height: 40,
   },
   textZoom: {
     color: "#ffffff",
-    position: "absolute",
-    bottom: 220,
-    left: "46%",
+    left: -7,
+    zIndex: 2,  
   },
   success: {
     width: 20,
