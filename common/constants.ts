@@ -16,3 +16,4 @@ export const SUCESSUPLOAD = 'Archivo subido';
 
 export const emailExistError = 'El email ingresado ya está registrado';
 export const serverError = 'Ha ocurrido un problema en el servidor';
+export const internetError = 'No se puede conectar con el servidor. Verifica tu conexión a internet.';

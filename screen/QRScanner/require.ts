@@ -1,5 +1,5 @@
 import { IPayloadUserEventAssociation, UserEventAssociationApi } from "../../api/eventUserAssociation";
-import { emailExistError, EVENT_ID, serverError, TOKEN, USER_ID } from "../../common/constants";
+import { emailExistError, EVENT_ID, internetError, serverError, TOKEN, USER_ID } from "../../common/constants";
 import { setAsyncStorage } from "../../helpers/helper";
 
 export const eventUserAssociation = async (
@@ -26,7 +26,9 @@ export const eventUserAssociation = async (
     .catch((error) => {
       setLoading(false)
       const errorStatus = error.response?.status
-      if (errorStatus === 409) {
+      if (!error.response) {
+        setError(internetError);
+      } else if (errorStatus === 409) {
         setError(emailExistError)
       } else {
         setError(serverError)
