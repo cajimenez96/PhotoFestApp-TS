@@ -18,4 +18,5 @@ export const cameraIcons = {
   close: require('../assets/picture/close.png'),
   play: require('../assets/picture/play.png'),
   pause: require('../assets/picture/pause.png'),
+  exit: require('../assets/picture/exit.png'),
 };
