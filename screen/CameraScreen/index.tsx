@@ -163,24 +163,6 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
         </View>
       )
       }
-      {cameraRef &&
-        <>
-          {zoom !== 0 &&
-            <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
-          }
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={1}
-            value={zoom}
-            onValueChange={setZoom}
-            step={0.1}
-            minimumTrackTintColor="#ffffff"
-            maximumTrackTintColor="#ffffff"
-            thumbTintColor='#ffffff'
-          />
-        </>
-      }
       <View
         style={styles.modalContainer}
       >

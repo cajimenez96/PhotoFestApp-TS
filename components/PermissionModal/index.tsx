@@ -34,15 +34,15 @@ const PermissionModal = ({ requestPermission, requestMediaLibraryPermission, per
       />
 
       <PermissionButton
-        title={permissionData.titleMicro}
-        description={permissionData.descMicro}
+        title={permissionData.titleLibrary}
+        description={permissionData.descLibrary}
         granted={mediaLibraryPermission?.granted}
         onPress={requestMediaLibraryPermission}
       />
 
       <PermissionButton
-        title={permissionData.titleLibrary}
-        description={permissionData.descLibrary}
+        title={permissionData.titleMicro}
+        description={permissionData.descMicro}
         granted={microphonePermission?.granted}
         onPress={requestMicrophonePermission}
       />
