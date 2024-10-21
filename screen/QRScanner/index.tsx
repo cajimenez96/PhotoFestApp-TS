@@ -12,6 +12,7 @@ import Button from "../../components/Button";
 import { isValidEmail } from "../../common/validations";
 import NetInfo from '@react-native-community/netinfo';
 import { QRScannerProps } from "./QRScanner.type";
+import { colors } from "../../common/colors";
 
 const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   const [scanned, setScanned] = useState<boolean>(false);
@@ -101,7 +102,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
 
           <View style={styles.buttonPopup}>
             {loading ? (
-              <ActivityIndicator size="large" color="black" />
+              <ActivityIndicator size="large" color={colors.black} />
             ) : (
               <>
                 <Button style={[styles.buttons]} onClick={uploadUserEvent} >
@@ -123,7 +124,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
     <View style={globalStyles.container}>
       {scanned ? (
         <View style={[globalStyles.container, globalStyles.centered]}>
-          <ActivityIndicator size="large" color="black" />
+          <ActivityIndicator size="large" color={colors.black}  />
         </View>
       ) : (
         <Camera
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   boxTranslucid: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: colors.transparentBlack03,
     borderRadius: 12,
   },
   image: {
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   text: {
-    color: 'white',
+    color: colors.white,
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '600',
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
   },
   textCenter: {
     textAlign: 'center',
-    color: "white",
+    color: colors.white,
   },
   title: {
     textAlign: "center",
@@ -199,14 +200,14 @@ const styles = StyleSheet.create({
   },
   buttonCancel: {
     marginLeft: 20,
-    backgroundColor: "#262626",
+    backgroundColor: colors.lightBlack,
   },
   input: {
     marginTop: 80,
     marginBottom: 90,
   },
   textError: {
-    color: "red",
+    color: colors.red,
     bottom: 70,
   },
 });

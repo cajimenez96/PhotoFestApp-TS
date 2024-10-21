@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, TextInput } from 'react-native';
 import { IInput } from './Input.types';
+import { colors } from '../../common/colors';
 
 const Input = ({placeholder = "", style, onChange}: IInput) => {
   const [text, onChangeText] = useState(placeholder);
@@ -24,7 +25,7 @@ const styles = StyleSheet.create({
     padding: 2,
     paddingLeft: 7,
     borderBottomWidth: 1.5,
-    borderColor: "#000000",
+    borderColor: colors.black,
   },
 });
 
