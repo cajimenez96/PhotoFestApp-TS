@@ -15,6 +15,7 @@ import ModalPreview from '../../components/ModalPreview/ModalPreview';
 import NetInfo from '@react-native-community/netinfo';
 import { logout } from './require';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
+import { colors } from '../../common/colors';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -150,9 +151,9 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
             value={zoom}
             onValueChange={setZoom}
             step={0.1}
-            minimumTrackTintColor="#ffffff"
-            maximumTrackTintColor="#ffffff"
-            thumbTintColor='#ffffff'
+            minimumTrackTintColor={colors.white}
+            maximumTrackTintColor={colors.white}
+            thumbTintColor={colors.white}
           />
         </View>
       </Camera>
@@ -166,12 +167,12 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
       <View
         style={styles.modalContainer}
       >
-      <ConfirmationModal
-        modalVisible={logoutModalVisible}
-        setModalVisible={setLogoutModalVisible}
-        onConfirm={handleLogout}
-        confirmationMessage='¿Desea cerrar sesión?'
-      />
+        <ConfirmationModal
+          modalVisible={logoutModalVisible}
+          setModalVisible={setLogoutModalVisible}
+          onConfirm={handleLogout}
+          confirmationMessage='¿Desea cerrar sesión?'
+        />
       </View>
     </View>
   );
@@ -201,7 +202,7 @@ const styles = StyleSheet.create({
   buttonBot: {
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: "rgba(0, 0, 0, 0.221)",
+    backgroundColor: colors.transparentBlack,
     marginTop: 10,
     padding: 3,
   },
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: colors.white,
   },
   imgDispatch: {
     height: 80,
@@ -241,20 +242,20 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     position: 'absolute',
-    bottom: 185,  
-    left:25,
-    width: '100%',  
-    alignItems: 'center',  
+    bottom: 185,
+    left: 25,
+    width: '100%',
+    alignItems: 'center',
     zIndex: 1,
   },
   slider: {
-    width: '93%', 
+    width: '93%',
     height: 40,
   },
   textZoom: {
-    color: "#ffffff",
+    color: colors.white,
     left: -7,
-    zIndex: 2,  
+    zIndex: 2,
   },
   success: {
     width: 20,
@@ -270,7 +271,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgb(255, 255, 255)',
+    backgroundColor: colors.white,
   },
   textUploading: {
     fontSize: 12,

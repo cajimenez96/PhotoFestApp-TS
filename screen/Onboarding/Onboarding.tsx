@@ -5,6 +5,7 @@ import { StepOnboarding } from '../../common/stepOnboarding';
 import { globalStyles } from '../../styles/globalStyles';
 import { cameraIcons } from '../../common/icons';
 import { OnboardingButtonProps, OnboardingProps } from './Onboarding.type';
+import { colors } from '../../common/colors';
 
 const OnboardingButton = ({ OnPress, content, index }: OnboardingButtonProps) => {
   return (
@@ -81,7 +82,7 @@ export default Onboarding
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    backgroundColor: "black",
+    backgroundColor: colors.black,
   },
   img: {
     width: 270,
@@ -90,10 +91,10 @@ const styles = StyleSheet.create({
   text1: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "white",
+    color: colors.white,
   },
   text2: {
-    color: "white",
+    color: colors.white,
     width: "70%",
     paddingTop: 24,
     textAlign: "center",
@@ -110,12 +111,12 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 100,
-    backgroundColor: "#B4B4B4",
+    backgroundColor: colors.greyB4,
   },
   circleActive: {
     width: 13,
     height: 13,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.white,
   },
   buttonContainer: {
     position: "absolute",
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 13,
     padding: 14,
     borderRadius: 14,
-    backgroundColor: "#D9D9D9",
+    backgroundColor: colors.greyD9,
   },
   buttonText: {
     fontWeight: "bold",

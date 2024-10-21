@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { ConfirmationModalProps } from './ConfirmationModal.type';
+import { colors } from '../../common/colors';
 
 const ConfirmationModal = ({ modalVisible, setModalVisible, onConfirm, confirmationMessage }: ConfirmationModalProps) => {
 
@@ -43,22 +44,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: colors.transparentBlack05, 
   },
   modalContent: {
     width: '70%',
     paddingTop: 30,
     paddingBottom: 0,
-    backgroundColor: '#090909',
+    backgroundColor: colors.black09,
     borderRadius: 20,
     borderWidth: 0.5,
-    borderColor: '#fff',
+    borderColor: colors.white,
     elevation: 5,
   },
   modalText: {
     fontSize: 18,
     fontWeight: '400',
-    color: '#fff',
+    color: colors.white,
     marginBottom: 30,
     textAlign: 'center',
   },
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     bottom: 0,
     borderWidth: 1,
-    borderTopColor: '#fff',
+    borderTopColor: colors.white,
     flexDirection: 'row',
     justifyContent: 'center',
     borderBottomLeftRadius: 20,
@@ -76,22 +77,22 @@ const styles = StyleSheet.create({
   button: {
     flex: 0.5,
     padding: 15,
-    backgroundColor: '#090909',
+    backgroundColor: colors.black09,
     borderBottomRightRadius: 19,
   },
   closeButton: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     borderBottomRightRadius: 0,
     borderBottomLeftRadius: 19,
   },
   buttonText: {
     textAlign: 'center',
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: 'bold',
   },
   closeButtonText: {
     textAlign: 'center',
-    color: '#090909',
+    color: colors.black09,
     fontWeight: 'bold',
   },
 });

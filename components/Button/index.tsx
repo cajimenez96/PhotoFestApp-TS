@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { IButton } from './Button.types';
+import { colors } from '../../common/colors';
 
 const Button = ({children, style, onClick}: IButton) => {
   return (
@@ -16,7 +17,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 12,
-    backgroundColor: "#060606",
+    backgroundColor: colors.black06,
   }
 })
 

@@ -3,6 +3,7 @@ import { globalStyles } from '../../styles/globalStyles'
 import { PermissionButtonProps, PermissionModalProps } from './PermissionModal.type';
 import { cameraIcons } from '../../common/icons';
 import { permissionData } from './PermissionModel.data';
+import { colors } from '../../common/colors';
 
 const PermissionButton = ({ title, description, granted, onPress }: PermissionButtonProps) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
@@ -12,7 +13,7 @@ const PermissionButton = ({ title, description, granted, onPress }: PermissionBu
     </View>
     <Switch
       value={granted}
-      trackColor={{ false: '#3e3e3e', true: '#ad6bcf9c' }}
+      trackColor={{ false: colors.lightBlack, true: colors.lightPurple }}
       disabled={true}
     />
   </TouchableOpacity>
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-    backgroundColor: "#060606",
+    backgroundColor: colors.black06,
   },
   icon: {
     width: 100,
@@ -65,34 +66,34 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   title: {
-    textAlign: "center",
-    fontWeight: "700",
+    textAlign: 'center',
+    fontWeight: '700',
     marginBottom: 50,
     fontSize: 18,
-    color: "#d2d2d2",
-    width: "80%",
+    color: colors.black06,
+    width: '80%',
   },
   button: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 7,
     borderRadius: 14,
-    backgroundColor: "#202020",
+    backgroundColor: colors.black20,
     marginBottom: 20,
-    width: "70%",
+    width: '70%',
   },
   textView: {
-    width: "80%",
+    width: '80%',
     paddingRight: 10,
     paddingLeft: 10,
   },
   text2: {
-    fontWeight: "bold",
-    color: "#d3d3d3",
+    fontWeight: 'bold',
+    color: colors.greyD2,
   },
   text3: {
     fontSize: 12,
-    color: "#bdbdbd",
+    color: colors.greyD2,
   },
 });

@@ -8,6 +8,7 @@ import { PICTURE, VIDEO } from '../../common/constants';
 import { ResizeMode } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import { ModalButtonsProps, ModalPreviewProps } from './ModalPreview.types';
+import { colors } from '../../common/colors';
 
 const ModalButtons = ({ img, onPress }: ModalButtonsProps) => {
   return (
@@ -107,9 +108,9 @@ const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus }: ModalPrev
                   await videoRef.current.setPositionAsync(value);
                 }
               }}
-              minimumTrackTintColor="#ffffff"
-              maximumTrackTintColor="#000000"
-              thumbTintColor='#ffffff'
+              minimumTrackTintColor={colors.white}
+              maximumTrackTintColor={colors.black}
+              thumbTintColor={colors.white}
             />
             <Text style={styles.timeText}>{formatTime(duration)}</Text>
           </View>
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     paddingVertical: 15,
-    backgroundColor: "#0000007d",
+    backgroundColor: colors.black,
     flexDirection: "row-reverse",
     paddingHorizontal: 15,
   },
@@ -164,8 +165,8 @@ const styles = StyleSheet.create({
     width: "74%",
   },
   timeText: {
-    color: "#FFFFFF",
-    textShadowColor: 'rgb(0, 0, 0)',
+    color: colors.white,
+    textShadowColor: colors.black,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 2,
   },
