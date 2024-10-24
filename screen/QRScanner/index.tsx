@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Vibration, Alert } from "react-native";
-import { BarcodeScanningResult } from "expo-camera";
 import { globalStyles } from "../../styles/globalStyles";
 import { cameraIcons } from "../../common/icons";
 import { QRScannerData } from "./QRScanner.data";
@@ -13,10 +12,12 @@ import { isValidEmail } from "../../common/validations";
 import NetInfo from '@react-native-community/netinfo';
 import { QRScannerProps } from "./QRScanner.type";
 import { colors } from "../../common/colors";
+import { BACK, FLASHOFF, FLASHON } from "../../common/constants";
+import { useCodeScanner } from "react-native-vision-camera";
 
 const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   const [scanned, setScanned] = useState<boolean>(false);
-  const [flash, setFlash] = useState<boolean>(false);
+  const [torch, setTorch] = useState<"on" | "off" | undefined>(FLASHOFF);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [eventId, setEventId] = useState<string>("");
@@ -25,10 +26,20 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
 
   const handleFlash = () => {
     Vibration.vibrate(500);
-    setFlash(!flash);
+    setTorch(current => (current === FLASHOFF ? FLASHON : FLASHOFF));
   }
 
-  const barCodeScanned = async ({ data }: BarcodeScanningResult) => {
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr'],
+    onCodeScanned: (codes) => {
+      const data = codes[0].value
+      if (data) {
+        barCodeScanned(data);
+      }
+    }
+  })
+
+  const barCodeScanned = async (data: string) => {
     if (openModal) {
       return;
     }
@@ -46,10 +57,9 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
         ])
       return;
     }
-    let parsedData;
     try {
-      parsedData = JSON.parse(data);
-      setEventId(parsedData.eventID)
+      let parseData = JSON.parse(data)
+      setEventId(parseData.eventID)
       setScanned(false);
     } catch (error) {
       Alert.alert("Error", "El código QR escaneado no es válido.", [
@@ -60,10 +70,10 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
       ]);
       return;
     }
-
+    
     setOpenModal(true);
   };
-
+  
   const uploadUserEvent = async () => {
     if (!isValidEmail(newEmail)) {
       setError("Por favor, ingrese un correo electrónico válido.");
@@ -121,19 +131,21 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   }
 
   return (
-    <View style={globalStyles.container}>
+    <View style={[globalStyles.container, {backgroundColor: colors.black}]}>
       {scanned ? (
         <View style={[globalStyles.container, globalStyles.centered]}>
-          <ActivityIndicator size="large" color={colors.black}  />
+          <ActivityIndicator size="large" color={colors.white} />
         </View>
       ) : (
-        <Camera
-          handleBarCodeScanned={barCodeScanned}
-          torch={flash}
-        >
-          <View style={{ alignItems: 'flex-end' }}>
+        <>
+          <Camera
+            facing={BACK}
+            torch={torch}
+            codeScanner={codeScanner}
+          />
+          <View style={[styles.flashView,  globalStyles.padding]}>
             <TouchableOpacity onPress={handleFlash}>
-              <Image source={flash ? cameraIcons.flashImg : cameraIcons.flashOffImg} style={globalStyles.icon} />
+              <Image source={torch ? cameraIcons.flashImg : cameraIcons.flashOffImg} style={globalStyles.icon} />
             </TouchableOpacity>
           </View>
 
@@ -145,7 +157,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
               <Text style={styles.text}>{QRScannerData.text}</Text>
             </View>
           </View>
-        </Camera>
+        </>
       )}
       {openModal && renderModal()}
     </View>
@@ -155,10 +167,16 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
 export default QRScanner;
 
 const styles = StyleSheet.create({
+  flashView:{
+    position: "absolute",
+    alignItems: "flex-end",
+    width: "100%",
+  
+  },
   camera: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    position: "absolute",
+    right: "23%",
+    top: "30%",
     gap: 20,
   },
   boxTranslucid: {

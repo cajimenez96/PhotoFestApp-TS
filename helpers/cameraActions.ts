@@ -2,12 +2,12 @@ import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import { uploadFile } from '../firebase/firebase.config';
 import { sendToBackend } from '../screen/CameraScreen/require';
-import { Dispatch, SetStateAction } from 'react';
-import { CameraView } from 'expo-camera';
+import { Dispatch, RefObject, SetStateAction } from 'react';
 import { MediaTypePicture, MediaTypeVideo, PICTURE, SUCESSUPLOAD, VIDEO } from '../common/constants';
 import { Alert } from 'react-native';
 import * as ImagePicker from "expo-image-picker"
 import NetInfo from '@react-native-community/netinfo';
+import { Camera } from 'react-native-vision-camera';
 
 const saveToLibrary = async (filename: string) => {
   const asset = await MediaLibrary.createAssetAsync(filename);
@@ -47,24 +47,21 @@ export const uploadMedia = async (
 
 export const takePicture = async (
   setLoading: Dispatch<SetStateAction<boolean>>,
-  cameraRef: React.MutableRefObject<CameraView | null>,
+  cameraRef: RefObject<Camera>,
   setPicture: React.Dispatch<React.SetStateAction<string>>,
+  flash: "on" | "off" | "auto" | undefined,
 ) => {
   setLoading(true);
 
   if (cameraRef.current) {
     try {
-      const options = {
-        quality: 1,
-        base64: true,
-        exif: true,
-        skipProcessing: true,
-      };
-
-      const picture = await cameraRef.current.takePictureAsync(options);
-
+      const picture = await cameraRef.current.takePhoto({
+        flash: flash,
+        enableShutterSound: true,
+      })
+    
       if (picture) {
-        setPicture(picture.uri)
+        setPicture(`file://${picture.path}`)
       }
     } catch (error) {
       Alert.alert("Error al guardar", "Ha ocurrido un error al guardar la foto")
@@ -75,11 +72,12 @@ export const takePicture = async (
 };
 
 export const takeVideo = async (
-  cameraRef: React.MutableRefObject<CameraView | null>,
+  cameraRef: RefObject<Camera>,
   isRecording: boolean,
   setIsRecording: Dispatch<SetStateAction<boolean>>,
   setLoading: Dispatch<SetStateAction<boolean>>,
-  setVideo: React.Dispatch<React.SetStateAction<string>>
+  setVideo: React.Dispatch<React.SetStateAction<string>>,
+  flashVideo: "on" | "off" | undefined,
 ) => {
   setLoading(true);
   setTimeout(() => {
@@ -93,10 +91,17 @@ export const takeVideo = async (
         setIsRecording(false);
       } else {
         setIsRecording(true);
-        const video = await cameraRef.current.recordAsync();
-        if (video) {
-          setVideo(video.uri)
-        }
+        cameraRef.current.startRecording({
+          onRecordingFinished: (video) => {
+            setVideo(`file://${video.path}`); 
+          },
+          onRecordingError: (error) => {
+            console.error(error);
+            Alert.alert("Error al grabar", "Ha ocurrido un error al grabar el video");
+            setIsRecording(false);
+          },
+          flash: flashVideo,
+        });     
       }
     } catch (error) {
       Alert.alert("Error al guardar", "Ha ocurrido un error al guardar el video")

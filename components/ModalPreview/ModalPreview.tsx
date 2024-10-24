@@ -24,7 +24,6 @@ const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus }: ModalPrev
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [controlsVisible, setControlsVisible] = useState(true);
-
   useEffect(() => {
     if (mediaType === 'video' && videoRef.current) {
       videoRef.current.setOnPlaybackStatusUpdate(handlePlaybackStatusUpdate);
@@ -75,16 +74,16 @@ const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus }: ModalPrev
   };
 
   return (
-    <TouchableOpacity style={globalStyles.container} activeOpacity={1} onPress={toggleControls}>
-      {mediaType === 'picture' ? (
-        <Image source={{ uri: media }} style={styles.media} />
+    <TouchableOpacity style={[globalStyles.container, {backgroundColor: colors.black,}]} activeOpacity={1} onPress={toggleControls}>
+      {mediaType === PICTURE ? (
+        <Image source={{ uri: media }} style={styles.media} resizeMode="contain" />
       ) : (
         <Video
           ref={videoRef}
           source={{ uri: media }}
           style={styles.media}
           isLooping
-          resizeMode={ResizeMode.COVER}
+          resizeMode={ResizeMode.CONTAIN}
           onLoad={videoDuration}
         />
       )}
@@ -137,7 +136,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     paddingVertical: 15,
-    backgroundColor: colors.black,
+    backgroundColor: colors.transparentBlack,
     flexDirection: "row-reverse",
     paddingHorizontal: 15,
   },

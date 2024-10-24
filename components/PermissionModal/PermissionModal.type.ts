@@ -5,8 +5,8 @@ export type PermissionModalProps = {
   requestPermission: () => Promise<MediaLibrary.EXPermissionResponse>;
   mediaLibraryPermission: MediaLibrary.PermissionResponse | null;
   requestMediaLibraryPermission: () => Promise<MediaLibrary.PermissionResponse>;
-  microphonePermission: MediaLibrary.EXPermissionResponse | null;
-  requestMicrophonePermission: () => Promise<MediaLibrary.EXPermissionResponse>;
+  microphonePermission: boolean;
+  requestMicrophonePermission: () => Promise<boolean>;
 }
 
 export type PermissionButtonProps = {

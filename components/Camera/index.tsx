@@ -1,23 +1,35 @@
-import React, { forwardRef, useEffect } from 'react';
-import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
-import { globalStyles } from '../../styles/globalStyles';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { ICamera } from './Camera.type';
 import * as MediaLibrary from 'expo-media-library';
 import PermissionModal from '../PermissionModal';
-import { View } from 'react-native';
+import { AppState, AppStateStatus, View } from 'react-native';
+import { useCameraDevice, Camera, useMicrophonePermission } from 'react-native-vision-camera';
+import { useCameraPermissions } from 'expo-image-picker';
 
-const Camera = forwardRef<CameraView, ICamera>(({
-  children,
-  torch = false,
-  mode,
+const CameraComponent = forwardRef<Camera, ICamera>(({
+  torch,
   facing,
-  flash,
-  handleBarCodeScanned,
-  zoom,
+  codeScanner
 }, ref) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
-  const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
+  const { hasPermission: microphonePermission, requestPermission: requestMicrophonePermission } = useMicrophonePermission();
+  const [isActive, setIsActive] = useState(true);
+  const device = useCameraDevice(facing)
+
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        setIsActive(true);
+      } else {
+        setIsActive(false);
+      }
+    };
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (!permission || !mediaLibraryPermission || !microphonePermission) {
@@ -27,11 +39,11 @@ const Camera = forwardRef<CameraView, ICamera>(({
     }
   }, []);
 
-  if (!permission || !mediaLibraryPermission || !microphonePermission) {
+  if (!permission || !mediaLibraryPermission || microphonePermission === null) {
     return <View />;
   }
 
-  if (!permission.granted || !mediaLibraryPermission.granted || !microphonePermission.granted) {
+  if (!permission.granted || !mediaLibraryPermission.granted || !microphonePermission) {
     return (
       <PermissionModal
         permission={permission}
@@ -45,24 +57,22 @@ const Camera = forwardRef<CameraView, ICamera>(({
     );
   }
 
+  if (!device) return
+
   return (
-    <CameraView
-      onBarcodeScanned={handleBarCodeScanned}
-      barcodeScannerSettings={{
-        barcodeTypes: ["qr", "pdf417"],
-      }}
-      style={[globalStyles.container, globalStyles.padding]}
-      autofocus="on"
-      enableTorch={torch}
-      mode={mode}
-      facing={facing}
-      flash={flash}
+    <Camera
+      style={{ flex: 1 }}
+      device={device}
+      isActive={isActive}
       ref={ref}
-      zoom={zoom} 
-    >
-      {children}
-    </CameraView>
+      video={true}
+      audio={true}
+      photo={true}
+      enableZoomGesture
+      torch={torch}
+      codeScanner={codeScanner}
+    />
   );
 });
 
-export default Camera;
+export default CameraComponent;

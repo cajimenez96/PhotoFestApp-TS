@@ -1,4 +1,3 @@
-import { CameraView } from 'expo-camera';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import useCamera from '../../hooks/useCamera';
@@ -6,16 +5,16 @@ import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
-import Camera from '../../components/Camera';
 import { pickImage, takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as MediaLibrary from 'expo-media-library';
-import Slider from '@react-native-community/slider';
 import { CameraActionButtonProps, CameraScreenProps } from './CameraScreen.type';
 import ModalPreview from '../../components/ModalPreview/ModalPreview';
 import NetInfo from '@react-native-community/netinfo';
 import { logout } from './require';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { colors } from '../../common/colors';
+import CameraComponent from '../../components/Camera';
+import { Camera, useCameraDevice } from 'react-native-vision-camera';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -26,14 +25,18 @@ const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
 }
 
 const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
-  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, zoom, setZoom, setIsConnectedToWifi, isConnectedToWifi } = useCamera();
-  const cameraRef = useRef<CameraView>(null);
+  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, setIsConnectedToWifi, isConnectedToWifi } = useCamera();
+
   const [loading, setLoading] = useState<boolean>(false);
   const [mediaLibraryPermission] = MediaLibrary.usePermissions();
   const [uploadStatus, setUploadStatus] = useState<string>('');
   const [logoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
+
   const [picture, setPicture] = useState<string>('');
   const [video, setVideo] = useState<string>('');
+
+  const cameraref = useRef<Camera>(null)
+  const device = useCameraDevice(facing) 
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -59,15 +62,14 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
 
   const pictureOrVideo = () => {
     if (mode === "picture") {
-      loading ? undefined : takePicture(setLoading, cameraRef, setPicture)
+      loading ? undefined : takePicture(setLoading, cameraref, setPicture, flash)
     } else {
-      loading ? undefined : takeVideo(cameraRef, isRecording, setIsRecording, setLoading, setVideo)
+      loading ? undefined : takeVideo(cameraref, isRecording, setIsRecording, setLoading, setVideo, flash)
     }
   }
 
   const handlePickImage = async () => {
     await pickImage(
-
       setUploadStatus,
     );
   };
@@ -85,78 +87,67 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
     return <ModalPreview media={video} setMedia={setVideo} mediaType='video' setUploadStatus={setUploadStatus} />
   }
 
-
   return (
     <View style={globalStyles.container}>
-      <Camera
-        mode={mode}
+
+      <CameraComponent
+        ref={cameraref}
         facing={facing}
-        ref={cameraRef}
-        flash={flash}
-        torch={mode === "video" && flash === "on"}
-        zoom={zoom}
-      >
-        <View style={styles.flashView}>
+      />
+
+      <View style={styles.flashView}>
+        <CameraButton
+          onPress={isRecording ? () => { } : () => setLogoutModalVisible(true)}
+          source={cameraIcons.exit}
+          typeDispatch={false}
+          disableImage={isRecording}
+        />
+        {device?.hasFlash &&
           <CameraButton
-            onPress={toggleFlash}
+            onPress={isRecording ? () => { } : toggleFlash}
             source={flash === FLASHOFF ? cameraIcons.flashOffImg : cameraIcons.flashImg}
             typeDispatch={false}
+            disableImage={isRecording}
           />
+        }
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <View style={styles.buttonSup}>
+
           <CameraButton
-            onPress={() => setLogoutModalVisible(true)}
-            source={cameraIcons.exit}
+            source={cameraIcons.galleryIcon}
             typeDispatch={false}
+            disableImage={isRecording}
+            onPress={isRecording ? undefined : handlePickImage}
+          />
+
+          <CameraButton
+            onPress={pictureOrVideo}
+            source={isRecording ? cameraIcons.onRecording : (mode === "picture" ? cameraIcons.dispatchPhotoImg : cameraIcons.startRecording)}
+            typeDispatch={true}
+          />
+
+          <CameraButton
+            onPress={isRecording ? () => { } : toggleCameraFacing}
+            source={cameraIcons.flipCameraImg}
+            typeDispatch={false}
+            disableImage={isRecording}
           />
         </View>
-        <View style={styles.buttonContainer}>
-          <View style={styles.buttonSup}>
-            <CameraButton
-              source={cameraIcons.galleryIcon}
-              typeDispatch={false}
-              disableImage={isRecording}
-              onPress={handlePickImage}
-            />
-            <CameraButton
-              onPress={pictureOrVideo}
-              source={isRecording ? cameraIcons.onRecording : (mode === "picture" ? cameraIcons.dispatchPhotoImg : cameraIcons.startRecording)}
-              typeDispatch={true}
-              disableImage={loading}
-            />
-            <CameraButton
-              onPress={isRecording ? undefined : toggleCameraFacing}
-              source={cameraIcons.flipCameraImg}
-              typeDispatch={false}
-              disableImage={isRecording}
-            />
-          </View>
-          <View style={styles.buttonBot}>
-            <CameraActionButton
-              onPress={isRecording ? () => { } : toggleCameraModeVideo}
-              img={mode === VIDEO ? cameraIcons.videoModeDark : cameraIcons.videoMode}
-            />
-            <CameraActionButton
-              onPress={isRecording ? () => { } : toggleCameraModePhoto}
-              img={mode === PICTURE ? cameraIcons.pictureModeDark : cameraIcons.pictureMode}
-            />
-          </View>
-        </View>
-        <View style={styles.sliderContainer}>
-          {zoom !== 0 &&
-            <Text style={styles.textZoom}>x{(zoom * 4).toFixed(1)}</Text>
-          }
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={1}
-            value={zoom}
-            onValueChange={setZoom}
-            step={0.1}
-            minimumTrackTintColor={colors.white}
-            maximumTrackTintColor={colors.white}
-            thumbTintColor={colors.white}
+
+        <View style={[styles.buttonBot, isRecording && styles.isRecordingOpacity]}>
+          <CameraActionButton
+            onPress={isRecording ? () => { } : toggleCameraModeVideo}
+            img={mode === VIDEO ? cameraIcons.videoModeDark : cameraIcons.videoMode}
+          />
+          <CameraActionButton
+            onPress={isRecording ? () => { } : toggleCameraModePhoto}
+            img={mode === PICTURE ? cameraIcons.pictureModeDark : cameraIcons.pictureMode}
           />
         </View>
-      </Camera>
+      </View>
+
       {uploadStatus && (
         <View style={styles.loaderContainer}>
           <Text style={styles.textUploading}>{uploadStatus}</Text>
@@ -181,13 +172,13 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
 export default CameraScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    flex: 1,
-  },
   flashView: {
+    position: "absolute",
     flexDirection: 'row',
     justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 14,
+    paddingTop: 10,
   },
   buttonContainer: {
     position: 'absolute',
@@ -205,6 +196,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.transparentBlack,
     marginTop: 10,
     padding: 3,
+  },
+  isRecordingOpacity: {
+    opacity: 0,
   },
   buttonsMode: {
     width: 67,
