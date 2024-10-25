@@ -1,6 +1,7 @@
+import { useCallback, useEffect, useState } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
 import CameraScreen from './screen/CameraScreen';
 import QRScanner from './screen/QRScanner';
-import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Onboarding from './screen/Onboarding/Onboarding';
@@ -12,9 +13,13 @@ import PermissionModal from './components/PermissionModal';
 import { View } from 'react-native';
 import { Audio } from 'expo-av';
 
+SplashScreen.preventAutoHideAsync();
+
 const App = () => {
+  const [appIsReady, setAppIsReady] = useState<boolean>(false);
   const [userLogued, setUserLogued] = useState<boolean>(false)
   const [onboardingStatus, setOnboardingStatus] = useState<string>("");
+
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
   const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions(); 
@@ -24,8 +29,16 @@ const App = () => {
       try {
         const onboardingStatus = await AsyncStorage.getItem('onboardingCompleted');
         if (onboardingStatus !== null) setOnboardingStatus(onboardingStatus);
+
+        setTimeout(async () => {
+          await SplashScreen.hideAsync();
+        }, 2000);
+        
       } catch (error) {
         console.error('Error retrieving onboarding status:', error);
+      }
+      finally {
+        setAppIsReady(true);
       }
     };
     checkOnboardingStatus();
@@ -49,6 +62,12 @@ const App = () => {
     };
     requestPermissions();
   }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
 
   if (!permission || !mediaLibraryPermission || !microphonePermission) {
     return <View />;
@@ -75,11 +94,18 @@ const App = () => {
     return <Onboarding setCompletedOnboarding={setOnboardingStatus} />;
   };
 
+  if (!appIsReady) {
+    return null;
+  }
+
   return (
-    <>
+    <View
+      style={{ flex: 1}}
+      onLayout={onLayoutRootView}
+    >
       <StatusBar hidden />
       {renderContent()}
-    </>
+    </View>
   );
 }
 
