@@ -6,7 +6,8 @@ import { useCameraDevice, Camera } from 'react-native-vision-camera';
 const CameraComponent = forwardRef<Camera, ICamera>(({
   torch,
   facing,
-  codeScanner
+  codeScanner, 
+  setUiRotation
 }, ref) => {
   const [isActive, setIsActive] = useState(true);
   const device = useCameraDevice(facing)
@@ -39,6 +40,7 @@ const CameraComponent = forwardRef<Camera, ICamera>(({
       enableZoomGesture
       torch={torch}
       codeScanner={codeScanner}
+      onUIRotationChanged={setUiRotation}
     />
   );
 });

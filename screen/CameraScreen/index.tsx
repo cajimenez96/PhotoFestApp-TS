@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, ViewStyle } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
@@ -36,7 +36,12 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const [video, setVideo] = useState<string>('');
 
   const cameraref = useRef<Camera>(null)
-  const device = useCameraDevice(facing) 
+  const device = useCameraDevice(facing)
+
+  const [uiRotation, setUiRotation] = useState(0)
+  const uiStyle: ViewStyle = {
+    transform: [{ rotate: `${uiRotation}deg` }]
+  }
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -93,6 +98,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
       <CameraComponent
         ref={cameraref}
         facing={facing}
+        setUiRotation={setUiRotation}
       />
 
       <View style={styles.flashView}>
@@ -101,6 +107,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
           source={cameraIcons.exit}
           typeDispatch={false}
           disableImage={isRecording}
+          uiStyle={uiStyle}
         />
         {device?.hasFlash &&
           <CameraButton
@@ -108,6 +115,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
             source={flash === FLASHOFF ? cameraIcons.flashOffImg : cameraIcons.flashImg}
             typeDispatch={false}
             disableImage={isRecording}
+            uiStyle={uiStyle}
           />
         }
       </View>
@@ -120,12 +128,14 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
             typeDispatch={false}
             disableImage={isRecording}
             onPress={isRecording ? undefined : handlePickImage}
+            uiStyle={uiStyle}
           />
 
           <CameraButton
             onPress={pictureOrVideo}
             source={isRecording ? cameraIcons.onRecording : (mode === "picture" ? cameraIcons.dispatchPhotoImg : cameraIcons.startRecording)}
             typeDispatch={true}
+            uiStyle={uiStyle}
           />
 
           <CameraButton
@@ -133,6 +143,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
             source={cameraIcons.flipCameraImg}
             typeDispatch={false}
             disableImage={isRecording}
+            uiStyle={uiStyle}
           />
         </View>
 
