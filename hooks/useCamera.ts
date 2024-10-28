@@ -1,14 +1,14 @@
-import { CameraMode, CameraType, FlashMode } from 'expo-camera';
 import { useState } from 'react';
 import { BACK, FLASHOFF, FLASHON, FRONT, PICTURE, VIDEO } from '../common/constants';
 
 const useCamera = () => {
-  const [facing, setFacing] = useState<CameraType>(BACK);
-  const [flash, setFlash] = useState<FlashMode>(FLASHOFF);
-  const [mode, setMode] = useState<CameraMode>(PICTURE);
-  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [facing, setFacing] = useState<'front' | 'back'>(BACK);
+  const [flash, setFlash] = useState<"on" | "off" | undefined>(FLASHOFF);
+  const [mode, setMode] = useState<"picture" | "video">(PICTURE);
   const [zoom, setZoom] = useState(0);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isConnectedToWifi, setIsConnectedToWifi] = useState<boolean | null>(true);
+  const [previousFlashState, setPreviousFlashState] = useState<"on" | "off" | undefined>(FLASHOFF); 
 
   const toggleFlash = () => {
     setFlash(current => (current === FLASHOFF ? FLASHON : FLASHOFF));
@@ -17,37 +17,25 @@ const useCamera = () => {
   const toggleCameraFacing = () => {
     setFacing(current => {
       const newFacing = current === BACK ? FRONT : BACK;
-      if (flash === FLASHON) {
-        setFlash(FLASHOFF);
-        setTimeout(() => {
-          setFlash(FLASHON);
-        }, 100);
+      if (newFacing === FRONT) {
+        setPreviousFlashState(flash); 
+        setFlash(FLASHOFF); 
+      } else {
+        setFlash(previousFlashState);
       }
       setZoom(0)
       return newFacing;
     });
   };
-  
+
   const toggleCameraModePhoto = () => {
     setMode(PICTURE)
-    if (flash === FLASHON) {
-      setFlash(FLASHOFF);
-      setTimeout(() => {
-        setFlash(FLASHON);
-      }, 100);
-    }
     setZoom(0)
   }
 
   const toggleCameraModeVideo = () => {
     setMode(VIDEO)
-      if (flash === FLASHON) {
-        setFlash(FLASHOFF);
-        setTimeout(() => {
-          setFlash(FLASHON);
-        }, 100);
-      }
-      setZoom(0)
+    setZoom(0)
   }
 
   return {

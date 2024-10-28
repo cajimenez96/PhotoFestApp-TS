@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   disabledImage: {
-    opacity: 0.5,
+    opacity: 0,
   },
   icon: {
     height: 47,

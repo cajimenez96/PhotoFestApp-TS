@@ -1,13 +1,9 @@
-import { BarcodeScanningResult, CameraMode, CameraType, CameraView, FlashMode } from "expo-camera";
-import { ReactNode } from "react";
+import { RefObject } from 'react';
+import { Camera, CodeScanner } from 'react-native-vision-camera';
 
 export interface ICamera {
-  children: ReactNode;
-  torch?: boolean;
-  mode?: CameraMode;
-  facing?: CameraType;
-  flash?: FlashMode;
-  ref?: React.LegacyRef<CameraView>;
-  handleBarCodeScanned?: (scanningResult: BarcodeScanningResult) => void;
-  zoom?: number;
+  torch?: 'on' | 'off' | undefined;
+  facing: 'front' | 'back';
+  ref?: RefObject<Camera>;
+  codeScanner?: CodeScanner;
 }

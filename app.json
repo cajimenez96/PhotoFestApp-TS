@@ -22,7 +22,8 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.MANAGE_EXTERNAL_STORAGE"
       ],
       "package": "com.synergy.photofest"
     },
@@ -31,17 +32,18 @@
     },
     "plugins": [
       [
-        "expo-camera",
-        {
-          "cameraPermission": "$(PRODUCT_NAME) necesita acceso a tu cámara para poder funcionar",
-          "microphonePermission": "FestBook $(PRODUCT_NAME) necesita acceso a tu micrófono para poder funcionar",
-          "recordAudioAndroid": true
-        }
-      ],
-      [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+          "enableCodeScanner": true,
+          "enableMicrophonePermission": true,
+          "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
         }
       ]
     ],

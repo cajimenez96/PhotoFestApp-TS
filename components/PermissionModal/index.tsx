@@ -22,9 +22,7 @@ const PermissionButton = ({ title, description, granted, onPress }: PermissionBu
 const PermissionModal = ({ requestPermission, requestMediaLibraryPermission, permission, mediaLibraryPermission, microphonePermission, requestMicrophonePermission }: PermissionModalProps) => {
   return (
     <View style={[globalStyles.container, styles.container]}>
-
       <Image style={styles.icon} source={cameraIcons.festBookLogo}/>
-
       <Text style={styles.title}>Para continuar, FestBook necesita los siguientes permisos:</Text>
 
       <PermissionButton
@@ -44,7 +42,7 @@ const PermissionModal = ({ requestPermission, requestMediaLibraryPermission, per
       <PermissionButton
         title={permissionData.titleMicro}
         description={permissionData.descMicro}
-        granted={microphonePermission?.granted}
+        granted={microphonePermission.granted}
         onPress={requestMicrophonePermission}
       />
     </View>
@@ -59,6 +57,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     backgroundColor: colors.black06,
+    zIndex: 1
   },
   icon: {
     width: 100,
@@ -70,7 +69,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 50,
     fontSize: 18,
-    color: colors.black06,
+    color: colors.white,
     width: '80%',
   },
   button: {
