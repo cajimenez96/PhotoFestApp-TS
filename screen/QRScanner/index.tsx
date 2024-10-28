@@ -59,7 +59,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
     }
     try {
       let parseData = JSON.parse(data)
-      setEventId(parseData.eventID)
+      setEventId(parseData.EventID)
       setScanned(false);
     } catch (error) {
       Alert.alert("Error", "El código QR escaneado no es válido.", [
