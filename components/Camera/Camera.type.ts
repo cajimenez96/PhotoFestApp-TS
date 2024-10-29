@@ -6,5 +6,5 @@ export interface ICamera {
   facing: 'front' | 'back';
   ref?: RefObject<Camera>;
   codeScanner?: CodeScanner;
-  setUiRotation: React.Dispatch<React.SetStateAction<number>>,
+  animateRotation?: (toValue: number) => void,
 }

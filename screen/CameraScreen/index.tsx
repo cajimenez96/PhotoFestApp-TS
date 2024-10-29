@@ -15,6 +15,7 @@ import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationMo
 import { colors } from '../../common/colors';
 import CameraComponent from '../../components/Camera';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
+import { Animated, Easing } from 'react-native';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -38,10 +39,8 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const cameraref = useRef<Camera>(null)
   const device = useCameraDevice(facing)
 
-  const [uiRotation, setUiRotation] = useState(0)
-  const uiStyle: ViewStyle = {
-    transform: [{ rotate: `${uiRotation}deg` }]
-  }
+  const [uiRotation] = useState(new Animated.Value(0));
+
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -92,13 +91,33 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
     return <ModalPreview media={video} setMedia={setVideo} mediaType='video' setUploadStatus={setUploadStatus} />
   }
 
+  const animateRotation = (toValue: number) => {
+    Animated.timing(uiRotation, {
+      toValue,
+      duration: 250, // Duración de la animación en milisegundos
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const uiStyle: ViewStyle = {
+    transform: [
+      {
+        rotate: uiRotation.interpolate({
+          inputRange: [0, 360],
+          outputRange: ['0deg', '360deg'],
+        }),
+      },
+    ],
+  };
+
   return (
     <View style={globalStyles.container}>
 
       <CameraComponent
         ref={cameraref}
         facing={facing}
-        setUiRotation={setUiRotation}
+        animateRotation={animateRotation}
       />
 
       <View style={styles.flashView}>

@@ -7,7 +7,7 @@ const CameraComponent = forwardRef<Camera, ICamera>(({
   torch,
   facing,
   codeScanner, 
-  setUiRotation
+  animateRotation
 }, ref) => {
   const [isActive, setIsActive] = useState(true);
   const device = useCameraDevice(facing)
@@ -40,7 +40,7 @@ const CameraComponent = forwardRef<Camera, ICamera>(({
       enableZoomGesture
       torch={torch}
       codeScanner={codeScanner}
-      onUIRotationChanged={setUiRotation}
+      onUIRotationChanged={animateRotation ? (rotation) => animateRotation(rotation) : () => {}}
     />
   );
 });
