@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, ViewStyle } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
@@ -14,8 +14,10 @@ import { logout } from './require';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { colors } from '../../common/colors';
 import CameraComponent from '../../components/Camera';
-import { Camera, useCameraDevice } from 'react-native-vision-camera';
+import { Camera, Point, useCameraDevice } from 'react-native-vision-camera';
 import { Animated, Easing } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -38,9 +40,13 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
 
   const cameraref = useRef<Camera>(null)
   const device = useCameraDevice(facing)
+  const suportFocus = device?.supportsFocus
 
   const [uiRotation] = useState(new Animated.Value(0));
 
+  const [focusIndicator, setFocusIndicator] = useState({ x: 0, y: 0, visible: false });
+  const focusAnimation = useRef(new Animated.Value(1)).current;
+  const [isFocusing, setIsFocusing] = useState(false);
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -59,6 +65,30 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
       )
     }
   }, [isConnectedToWifi]);
+
+  const focus = useCallback((point: Point) => {
+    if (!suportFocus) return
+    const c = cameraref.current;
+    if (c == null || isFocusing) return;
+
+    setIsFocusing(true);
+    setFocusIndicator({ x: point.x, y: point.y, visible: true });
+
+    Animated.sequence([
+      Animated.timing(focusAnimation, {
+        toValue: 1.5,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(focusAnimation, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setFocusIndicator(prev => ({ ...prev, visible: false })));
+
+    c.focus(point).then(() => setIsFocusing(false)).catch(() => setIsFocusing(false));
+  }, [isFocusing, suportFocus]);
 
   if (!mediaLibraryPermission) {
     return <View />;
@@ -94,7 +124,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const animateRotation = (toValue: number) => {
     Animated.timing(uiRotation, {
       toValue,
-      duration: 250, // Duración de la animación en milisegundos
+      duration: 250,
       easing: Easing.inOut(Easing.ease),
       useNativeDriver: true,
     }).start();
@@ -111,14 +141,19 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
     ],
   };
 
+  const gesture = Gesture.Tap().onEnd(({ x, y }) => {
+    runOnJS(focus)({ x, y })
+  })
+
   return (
     <View style={globalStyles.container}>
-
-      <CameraComponent
-        ref={cameraref}
-        facing={facing}
-        animateRotation={animateRotation}
-      />
+      <GestureDetector gesture={gesture}>
+        <CameraComponent
+          ref={cameraref}
+          facing={facing}
+          animateRotation={animateRotation}
+        />
+      </GestureDetector>
 
       <View style={styles.flashView}>
         <CameraButton
@@ -195,13 +230,36 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
           confirmationMessage='¿Desea cerrar sesión?'
         />
       </View>
+
+      {focusIndicator.visible && (
+        <Animated.View
+          style={[
+            styles.focusIndicator,
+            {
+              top: focusIndicator.y - 25,
+              left: focusIndicator.x - 25,
+              transform: [{ scale: focusAnimation }],
+            },
+          ]}
+        />
+      )}
     </View>
+
   );
 }
 
 export default CameraScreen;
 
 const styles = StyleSheet.create({
+  focusIndicator: {
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
+  },
   flashView: {
     position: "absolute",
     flexDirection: 'row',

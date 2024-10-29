@@ -12,6 +12,7 @@ import { useCameraPermissions } from 'expo-image-picker';
 import PermissionModal from './components/PermissionModal';
 import { View } from 'react-native';
 import { Audio } from 'expo-av';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,7 +23,7 @@ const App = () => {
 
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
-  const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions(); 
+  const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions();
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -33,7 +34,7 @@ const App = () => {
         setTimeout(async () => {
           await SplashScreen.hideAsync();
         }, 2000);
-        
+
       } catch (error) {
         console.error('Error retrieving onboarding status:', error);
       }
@@ -99,13 +100,15 @@ const App = () => {
   }
 
   return (
-    <View
-      style={{ flex: 1}}
-      onLayout={onLayoutRootView}
-    >
-      <StatusBar hidden />
-      {renderContent()}
-    </View>
+    <GestureHandlerRootView>
+      <View
+        style={{ flex: 1 }}
+        onLayout={onLayoutRootView}
+      >
+        <StatusBar hidden />
+        {renderContent()}
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
