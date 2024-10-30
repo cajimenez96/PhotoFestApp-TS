@@ -115,13 +115,12 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
               <ActivityIndicator size="large" color={colors.black} />
             ) : (
               <>
-                <Button style={[styles.buttons]} onClick={uploadUserEvent} >
-                  <Text style={styles.textCenter}>Enviar</Text>
-                </Button >
-
                 <Button style={[styles.buttons, styles.buttonCancel]} onClick={cancelFunction}>
                   <Text style={styles.textCenter}>Cancelar</Text>
                 </Button>
+                <Button style={[styles.buttons]} onClick={uploadUserEvent} >
+                  <Text style={styles.textCenter}>Enviar</Text>
+                </Button >
               </>
             )}
           </View>
@@ -217,7 +216,7 @@ const styles = StyleSheet.create({
     width: 100,
   },
   buttonCancel: {
-    marginLeft: 20,
+    marginRight: 20,
     backgroundColor: colors.lightBlack,
   },
   input: {
