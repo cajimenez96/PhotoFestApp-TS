@@ -18,6 +18,7 @@ import { Camera, Point, useCameraDevice } from 'react-native-vision-camera';
 import { Animated, Easing } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
+import { formatTime } from '../../helpers/helper';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -28,7 +29,7 @@ const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
 }
 
 const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
-  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, setIsConnectedToWifi, isConnectedToWifi } = useCamera();
+  const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, setIsConnectedToWifi, isConnectedToWifi, timer, setTimer, intervalId, setIntervalId } = useCamera();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [mediaLibraryPermission] = MediaLibrary.usePermissions();
@@ -43,6 +44,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const suportFocus = device?.supportsFocus
 
   const [uiRotation] = useState(new Animated.Value(0));
+  const [orientation, setOritation] = useState(0);
 
   const [focusIndicator, setFocusIndicator] = useState({ x: 0, y: 0, visible: false });
   const focusAnimation = useRef(new Animated.Value(1)).current;
@@ -98,7 +100,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
     if (mode === "picture") {
       loading ? undefined : takePicture(setLoading, cameraref, setPicture, flash)
     } else {
-      loading ? undefined : takeVideo(cameraref, isRecording, setIsRecording, setLoading, setVideo, flash)
+      loading ? undefined : takeVideo(cameraref, isRecording, setIsRecording, setLoading, setVideo, flash, setTimer, setIntervalId, intervalId)
     }
   }
 
@@ -122,6 +124,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   }
 
   const animateRotation = (toValue: number) => {
+    setOritation(toValue)
     Animated.timing(uiRotation, {
       toValue,
       duration: 250,
@@ -145,6 +148,21 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
     runOnJS(focus)({ x, y })
   })
 
+  const orientationTimer = (orientation: number) => {
+    switch (orientation) {
+      case orientation = 0:
+        return styles.timerPortrait
+      case orientation = -90:
+        return styles.timerLandscapeRigth
+      case orientation = 90:
+        return styles.timerLandscapeLeft
+      case orientation = 180:
+        return styles.timerPortraitUpsideDown
+      default:
+        break;
+    }
+  }
+
   return (
     <View style={globalStyles.container}>
       <GestureDetector gesture={gesture}>
@@ -154,7 +172,11 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
           animateRotation={animateRotation}
         />
       </GestureDetector>
-
+      {isRecording &&
+        <View style={orientationTimer(orientation)}>
+          <Text style={styles.timer}>{formatTime(timer)}</Text>
+        </View>
+      }
       <View style={styles.flashView}>
         <CameraButton
           onPress={isRecording ? () => { } : () => setLogoutModalVisible(true)}
@@ -173,7 +195,6 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
           />
         }
       </View>
-
       <View style={styles.buttonContainer}>
         <View style={styles.buttonSup}>
 
@@ -251,13 +272,44 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
 export default CameraScreen;
 
 const styles = StyleSheet.create({
+  timerPortrait: {
+    width: "100%",
+    position: "absolute",
+    alignItems: "center",
+  },
+  timerLandscapeRigth: {
+    position: "absolute",
+    transform: [{ rotate: '-90deg' }],
+    top: "43%",
+  },
+  timerLandscapeLeft: {
+    position: "absolute",
+    transform: [{ rotate: '90deg' }],
+    right: 0,
+    top: "43%",
+  },
+  timerPortraitUpsideDown: {
+    width: "100%",
+    position: "absolute",
+    alignItems: "center",
+    transform: [{ rotate: '180deg' }],
+    marginTop: 30,
+  },
+  timer: {
+    color: colors.white,
+    padding: 8,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+    marginTop: 30,
+    backgroundColor: colors.red,
+  },
   focusIndicator: {
     position: 'absolute',
     width: 50,
     height: 50,
     borderRadius: 25,
     borderWidth: 2,
-    borderColor: 'white',
+    borderColor: colors.white,
     backgroundColor: 'rgba(255, 255, 255, 0)',
   },
   flashView: {
