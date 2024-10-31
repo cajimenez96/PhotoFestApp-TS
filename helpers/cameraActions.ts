@@ -59,7 +59,7 @@ export const takePicture = async (
         flash: flash,
         enableShutterSound: true,
       })
-    
+
       if (picture) {
         setPicture(`file://${picture.path}`)
       }
@@ -78,6 +78,9 @@ export const takeVideo = async (
   setLoading: Dispatch<SetStateAction<boolean>>,
   setVideo: React.Dispatch<React.SetStateAction<string>>,
   flashVideo: "on" | "off" | undefined,
+  setTimer: React.Dispatch<React.SetStateAction<number>>,
+  setIntervalId: React.Dispatch<React.SetStateAction<number | null>>,
+  intervalId: number | null
 ) => {
   setLoading(true);
   setTimeout(() => {
@@ -89,11 +92,25 @@ export const takeVideo = async (
       if (isRecording) {
         cameraRef.current.stopRecording();
         setIsRecording(false);
+
+        if (intervalId) {
+          clearInterval(intervalId)
+          setIntervalId(null);
+          setTimer(0)
+        }
+
       } else {
         setIsRecording(true);
+        setTimer(0);
+        
+        const id = setInterval(() => {
+          setTimer(prev => prev + 1);
+        }, 1000);
+        setIntervalId(id);
+
         cameraRef.current.startRecording({
           onRecordingFinished: (video) => {
-            setVideo(`file://${video.path}`); 
+            setVideo(`file://${video.path}`);
           },
           onRecordingError: (error) => {
             console.error(error);
@@ -101,11 +118,13 @@ export const takeVideo = async (
             setIsRecording(false);
           },
           flash: flashVideo,
-        });     
+        });
       }
     } catch (error) {
       Alert.alert("Error al guardar", "Ha ocurrido un error al guardar el video")
       setIsRecording(false);
+      if (intervalId) clearInterval(intervalId);
+      setTimer(0)
     }
   }
 };

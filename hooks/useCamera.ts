@@ -9,6 +9,8 @@ const useCamera = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isConnectedToWifi, setIsConnectedToWifi] = useState<boolean | null>(true);
   const [previousFlashState, setPreviousFlashState] = useState<"on" | "off" | undefined>(FLASHOFF); 
+  const [timer, setTimer] = useState(0); 
+  const [intervalId, setIntervalId] = useState<number | null>(null);
 
   const toggleFlash = () => {
     setFlash(current => (current === FLASHOFF ? FLASHON : FLASHOFF));
@@ -53,7 +55,11 @@ const useCamera = () => {
     setZoom,
     zoom,
     setIsConnectedToWifi,
-    isConnectedToWifi
+    isConnectedToWifi,
+    timer,
+    setTimer,
+    intervalId,
+    setIntervalId
   }
 }
 
