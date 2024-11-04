@@ -22,20 +22,14 @@ export async function sendToBackend(downloadURL: string, width: number, height: 
       setUploadStatus(SUCESSUPLOAD)
     })
     .catch((error) => {
-      const errorCode = error?.response.status
+      const errorCode = error?.response?.status
       if (errorCode === 401) {
         Alert.alert("Error al subir el archivo", "Ha ocurrido un error, intente logueandose nuevamente", [
           {
             text: 'Aceptar',
           },
         ]);
-      } else {
-        Alert.alert("Error al subir el archivo", "Ha ocurrido un error al subir el archivo", [
-          {
-            text: 'Aceptar',
-          },
-        ]);
-      }
+      } 
     })
 }
 
