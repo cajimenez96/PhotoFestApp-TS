@@ -15,6 +15,17 @@ const saveToLibrary = async (filename: string) => {
   return asset;
 };
 
+const adjustDimensions = (width: number, height: number, isPhoto: boolean, orientation: number) => {
+  if (!isPhoto && (orientation === 0 || orientation === 180)) {
+    return { width: height, height: width };
+  }
+  return { width, height };
+};
+
+const resetUploadStatus = (setUploadStatus: React.Dispatch<React.SetStateAction<string>>) => {
+  setTimeout(() => setUploadStatus(''), 1000);
+};
+
 export const uploadMedia = async (
   mediaUri: string,
   type: 'picture' | 'video',
@@ -29,29 +40,16 @@ export const uploadMedia = async (
   const asset = await saveToLibrary(filename);
 
   const connection = await NetInfo.fetch();
-
   if (!connection.isConnected) return;
 
-  if (asset) {
-    let height = asset.height
-    let width = asset.width
+  if (!asset) return
+  const { width, height } = adjustDimensions(asset.width, asset.height, isPhoto, orientation);
 
-    if (!isPhoto) {
-      if (orientation === 0 || orientation === 180) {
-        const temp = height;
-        height = width;
-        width = temp;
-      }
-    }
-
-    const downloadURL = await uploadFile(mediaUri, name);
-    if (downloadURL) {
-      await sendToBackend(downloadURL, width, height, isPhoto ? MediaTypePicture : MediaTypeVideo, setUploadStatus)
-    }
-    setTimeout(() => {
-      setUploadStatus('')
-    }, 1000);
+  const downloadURL = await uploadFile(mediaUri, name);
+  if (downloadURL) {
+    await sendToBackend(downloadURL, width, height, isPhoto ? MediaTypePicture : MediaTypeVideo, setUploadStatus)
   }
+  resetUploadStatus(setUploadStatus)
 };
 
 export const takePicture = async (
@@ -110,7 +108,7 @@ export const takeVideo = async (
       } else {
         setIsRecording(true);
         setTimer(0);
-        
+
         const id = setInterval(() => {
           setTimer(prev => prev + 1);
         }, 1000);
@@ -168,9 +166,7 @@ export const pickImage = async (
         }
       }
     }
-    setTimeout(() => {
-      setUploadStatus('')
-    }, 1000);
+    resetUploadStatus(setUploadStatus)
   }
 }
 
