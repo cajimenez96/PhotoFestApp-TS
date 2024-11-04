@@ -34,10 +34,7 @@ export const uploadMedia = async (
   if (asset) {
     const downloadURL = await uploadFile(mediaUri, name);
     if (downloadURL) {
-      await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo)
-        .then(() => {
-          setUploadStatus(SUCESSUPLOAD)
-        })
+      await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo, setUploadStatus)
     }
     setTimeout(() => {
       setUploadStatus('')
@@ -156,9 +153,7 @@ export const pickImage = async (
       if (asset.uri && asset.fileName) {
         const downloadURL = await uploadFile(asset.uri, asset.fileName);
         if (downloadURL) {
-          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture).then(() => {
-            setUploadStatus(SUCESSUPLOAD)
-          })
+          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture, setUploadStatus)
         }
       }
     }
