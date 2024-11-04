@@ -18,7 +18,8 @@ const saveToLibrary = async (filename: string) => {
 export const uploadMedia = async (
   mediaUri: string,
   type: 'picture' | 'video',
-  setUploadStatus: React.Dispatch<React.SetStateAction<string>>
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
+  orientation: number
 ) => {
   const isPhoto = type === PICTURE;
   const name = isPhoto ? `photo_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
@@ -32,9 +33,20 @@ export const uploadMedia = async (
   if (!connection.isConnected) return;
 
   if (asset) {
+    let height = asset.height
+    let width = asset.width
+
+    if (!isPhoto) {
+      if (orientation === 0 || orientation === 180) {
+        const temp = height;
+        height = width;
+        width = temp;
+      }
+    }
+
     const downloadURL = await uploadFile(mediaUri, name);
     if (downloadURL) {
-      await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo, setUploadStatus)
+      await sendToBackend(downloadURL, width, height, isPhoto ? MediaTypePicture : MediaTypeVideo, setUploadStatus)
     }
     setTimeout(() => {
       setUploadStatus('')
@@ -56,7 +68,6 @@ export const takePicture = async (
         flash: flash,
         enableShutterSound: true,
       })
-
       if (picture) {
         setPicture(`file://${picture.path}`)
       }
