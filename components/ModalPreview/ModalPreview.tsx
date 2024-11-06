@@ -25,14 +25,14 @@ const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus, orientation
   const [duration, setDuration] = useState(0);
   const [controlsVisible, setControlsVisible] = useState(true);
   useEffect(() => {
-    if (mediaType === 'video' && videoRef.current) {
+    if (mediaType === VIDEO && videoRef.current) {
       videoRef.current.setOnPlaybackStatusUpdate(handlePlaybackStatusUpdate);
     }
   }, []);
 
   const confirmMedia = async () => {
     setMedia("");
-    await uploadMedia(media, mediaType === 'picture' ? PICTURE : VIDEO, setUploadStatus, orientation);
+    await uploadMedia(media, mediaType === PICTURE ? PICTURE : VIDEO, setUploadStatus, orientation);
   };
 
   const togglePlayback = async () => {
