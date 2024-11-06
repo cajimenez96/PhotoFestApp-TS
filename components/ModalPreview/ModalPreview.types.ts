@@ -5,6 +5,7 @@ export type ModalPreviewProps = {
   setMedia: (value: string) => void,
   mediaType: 'picture' | 'video'
   setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
+  orientation: number
 }
 
 export type ModalButtonsProps = {

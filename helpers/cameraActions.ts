@@ -15,10 +15,22 @@ const saveToLibrary = async (filename: string) => {
   return asset;
 };
 
+const adjustDimensions = (width: number, height: number, isPhoto: boolean, orientation: number) => {
+  if (!isPhoto && (orientation === 0 || orientation === 180)) {
+    return { width: height, height: width };
+  }
+  return { width, height };
+};
+
+const resetUploadStatus = (setUploadStatus: React.Dispatch<React.SetStateAction<string>>) => {
+  setTimeout(() => setUploadStatus(''), 1000);
+};
+
 export const uploadMedia = async (
   mediaUri: string,
   type: 'picture' | 'video',
-  setUploadStatus: React.Dispatch<React.SetStateAction<string>>
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
+  orientation: number
 ) => {
   const isPhoto = type === PICTURE;
   const name = isPhoto ? `photo_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
@@ -28,18 +40,16 @@ export const uploadMedia = async (
   const asset = await saveToLibrary(filename);
 
   const connection = await NetInfo.fetch();
-
   if (!connection.isConnected) return;
 
-  if (asset) {
-    const downloadURL = await uploadFile(mediaUri, name);
-    if (downloadURL) {
-      await sendToBackend(downloadURL, asset.width, asset.height, isPhoto ? MediaTypePicture : MediaTypeVideo, setUploadStatus)
-    }
-    setTimeout(() => {
-      setUploadStatus('')
-    }, 1000);
+  if (!asset) return
+  const { width, height } = adjustDimensions(asset.width, asset.height, isPhoto, orientation);
+
+  const downloadURL = await uploadFile(mediaUri, name);
+  if (downloadURL) {
+    await sendToBackend(downloadURL, width, height, isPhoto ? MediaTypePicture : MediaTypeVideo, setUploadStatus)
   }
+  resetUploadStatus(setUploadStatus)
 };
 
 export const takePicture = async (
@@ -56,7 +66,6 @@ export const takePicture = async (
         flash: flash,
         enableShutterSound: true,
       })
-
       if (picture) {
         setPicture(`file://${picture.path}`)
       }
@@ -99,7 +108,7 @@ export const takeVideo = async (
       } else {
         setIsRecording(true);
         setTimer(0);
-        
+
         const id = setInterval(() => {
           setTimer(prev => prev + 1);
         }, 1000);
@@ -157,9 +166,7 @@ export const pickImage = async (
         }
       }
     }
-    setTimeout(() => {
-      setUploadStatus('')
-    }, 1000);
+    resetUploadStatus(setUploadStatus)
   }
 }
 

@@ -116,11 +116,11 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   }
 
   if (picture) {
-    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture' setUploadStatus={setUploadStatus} />
+    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture' setUploadStatus={setUploadStatus} orientation={orientation}/>
   }
 
   if (video) {
-    return <ModalPreview media={video} setMedia={setVideo} mediaType='video' setUploadStatus={setUploadStatus} />
+    return <ModalPreview media={video} setMedia={setVideo} mediaType='video' setUploadStatus={setUploadStatus} orientation={orientation}/>
   }
 
   const animateRotation = (toValue: number) => {
