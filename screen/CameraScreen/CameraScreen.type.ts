@@ -8,3 +8,8 @@ export type CameraActionButtonProps = {
 export type CameraScreenProps = {
   setUserLogued: React.Dispatch<React.SetStateAction<boolean>>
 }
+
+export type mediaTypeId = {
+  pictureId: string;
+  videoId: string;
+}

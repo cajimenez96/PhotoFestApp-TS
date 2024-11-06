@@ -3,11 +3,12 @@ import * as FileSystem from 'expo-file-system';
 import { uploadFile } from '../firebase/firebase.config';
 import { sendToBackend } from '../screen/CameraScreen/require';
 import { Dispatch, RefObject, SetStateAction } from 'react';
-import { MediaTypePicture, MediaTypeVideo, PICTURE, SUCESSUPLOAD, VIDEO } from '../common/constants';
+import { PICTURE, VIDEO } from '../common/constants';
 import { Alert } from 'react-native';
 import * as ImagePicker from "expo-image-picker"
 import NetInfo from '@react-native-community/netinfo';
 import { Camera } from 'react-native-vision-camera';
+import { mediaTypeId } from '../screen/CameraScreen/CameraScreen.type';
 
 const saveToLibrary = async (filename: string) => {
   const asset = await MediaLibrary.createAssetAsync(filename);
@@ -30,12 +31,12 @@ export const uploadMedia = async (
   mediaUri: string,
   type: 'picture' | 'video',
   setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
-  orientation: number
+  orientation: number,
+  mediaIds: mediaTypeId
 ) => {
   const isPhoto = type === PICTURE;
   const name = isPhoto ? `photo_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
   const filename = FileSystem.documentDirectory + name;
-
   await FileSystem.copyAsync({ from: mediaUri, to: filename });
   const asset = await saveToLibrary(filename);
 
@@ -47,7 +48,7 @@ export const uploadMedia = async (
 
   const downloadURL = await uploadFile(mediaUri, name);
   if (downloadURL) {
-    await sendToBackend(downloadURL, width, height, isPhoto ? MediaTypePicture : MediaTypeVideo, setUploadStatus)
+    await sendToBackend(downloadURL, width, height, isPhoto ? mediaIds.pictureId : mediaIds.videoId, setUploadStatus)
   }
   resetUploadStatus(setUploadStatus)
 };
@@ -136,7 +137,8 @@ export const takeVideo = async (
 };
 
 export const pickImage = async (
-  setUploadStatus: React.Dispatch<React.SetStateAction<string>>
+  setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
+  mediaIds: mediaTypeId
 ) => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -162,7 +164,7 @@ export const pickImage = async (
       if (asset.uri && asset.fileName) {
         const downloadURL = await uploadFile(asset.uri, asset.fileName);
         if (downloadURL) {
-          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? MediaTypeVideo : MediaTypePicture, setUploadStatus)
+          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? mediaIds.videoId : mediaIds.pictureId, setUploadStatus)
         }
       }
     }

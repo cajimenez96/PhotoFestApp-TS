@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, ViewStyle } from 'react-native';
 import useCamera from '../../hooks/useCamera';
-import { FLASHOFF, PICTURE, VIDEO } from '../../common/constants';
+import { FLASHOFF, MediaTypePictureId, MediaTypeVideoId, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
 import { pickImage, takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as MediaLibrary from 'expo-media-library';
-import { CameraActionButtonProps, CameraScreenProps } from './CameraScreen.type';
+import { CameraActionButtonProps, CameraScreenProps, mediaTypeId } from './CameraScreen.type';
 import ModalPreview from '../../components/ModalPreview/ModalPreview';
 import NetInfo from '@react-native-community/netinfo';
 import { logout } from './require';
@@ -18,7 +18,7 @@ import { Camera, Point, useCameraDevice } from 'react-native-vision-camera';
 import { Animated, Easing } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
-import { formatTime } from '../../helpers/helper';
+import { formatTime, getAsyncStorage } from '../../helpers/helper';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -50,10 +50,22 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const focusAnimation = useRef(new Animated.Value(1)).current;
   const [isFocusing, setIsFocusing] = useState(false);
 
+  const [mediaIds, setMediaIds] = useState<mediaTypeId>({ pictureId: "", videoId: "" });
+
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
       setIsConnectedToWifi(state.isConnected);
     });
+
+    const loadMediaIds = async () => {
+      const pictureId = await getAsyncStorage(MediaTypePictureId);
+      const videoId = await getAsyncStorage(MediaTypeVideoId);
+
+      if (pictureId && videoId) {
+        setMediaIds({ pictureId, videoId });
+      }
+    };
+    loadMediaIds();
 
     return () => unsubscribe();
   }, []);
@@ -107,6 +119,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const handlePickImage = async () => {
     await pickImage(
       setUploadStatus,
+      mediaIds
     );
   };
 
@@ -116,11 +129,25 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   }
 
   if (picture) {
-    return <ModalPreview media={picture} setMedia={setPicture} mediaType='picture' setUploadStatus={setUploadStatus} orientation={orientation}/>
+    return <ModalPreview
+      media={picture}
+      setMedia={setPicture}
+      mediaType='picture'
+      setUploadStatus={setUploadStatus}
+      orientation={orientation}
+      mediaIds={mediaIds}
+    />
   }
 
   if (video) {
-    return <ModalPreview media={video} setMedia={setVideo} mediaType='video' setUploadStatus={setUploadStatus} orientation={orientation}/>
+    return <ModalPreview
+      media={video}
+      setMedia={setVideo}
+      mediaType='video'
+      setUploadStatus={setUploadStatus}
+      orientation={orientation}
+      mediaIds={mediaIds}
+    />
   }
 
   const animateRotation = (toValue: number) => {
