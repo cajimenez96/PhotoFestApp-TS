@@ -11,7 +11,6 @@ import { Camera } from 'react-native-vision-camera';
 
 const saveToLibrary = async (filename: string) => {
   const asset = await MediaLibrary.createAssetAsync(filename);
-  await MediaLibrary.saveToLibraryAsync(filename); 
   return asset;
 };
 
