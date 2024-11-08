@@ -86,7 +86,8 @@ export const takeVideo = async (
   flashVideo: "on" | "off" | undefined,
   setTimer: React.Dispatch<React.SetStateAction<number>>,
   setIntervalId: React.Dispatch<React.SetStateAction<number | null>>,
-  intervalId: number | null
+  intervalId: number | null,
+  setPausedRecording: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
   setLoading(true);
   setTimeout(() => {
@@ -98,7 +99,7 @@ export const takeVideo = async (
       if (isRecording) {
         cameraRef.current.stopRecording();
         setIsRecording(false);
-
+        setPausedRecording(false);
         if (intervalId) {
           clearInterval(intervalId)
           setIntervalId(null);
@@ -132,6 +133,39 @@ export const takeVideo = async (
       if (intervalId) clearInterval(intervalId);
       setTimer(0)
     }
+  }
+};
+
+export const pauseStartVideo = async (
+  pausedRecording: boolean,
+  setPausedRecording: React.Dispatch<React.SetStateAction<boolean>>,
+  cameraRef: RefObject<Camera>,
+  intervalId: number | null,
+  setIntervalId: React.Dispatch<React.SetStateAction<number | null>>,
+  setTimer: React.Dispatch<React.SetStateAction<number>>
+) => {
+  try {
+    if (!pausedRecording) {
+      await cameraRef.current?.pauseRecording();
+      setPausedRecording(true);
+
+      if (intervalId) {
+        clearInterval(intervalId);
+        setIntervalId(null);
+      }
+    } else {
+      await cameraRef.current?.resumeRecording();
+      setPausedRecording(false);
+
+      const id = setInterval(() => {
+        setTimer(prev => prev + 1);
+      }, 1000);
+      setIntervalId(id);
+
+      setTimer(prev => prev + 1);
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
