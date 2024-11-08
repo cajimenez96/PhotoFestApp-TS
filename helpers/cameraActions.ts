@@ -12,7 +12,6 @@ import { mediaTypeId } from '../screen/CameraScreen/CameraScreen.type';
 
 const saveToLibrary = async (filename: string) => {
   const asset = await MediaLibrary.createAssetAsync(filename);
-  await MediaLibrary.createAlbumAsync('FestBook', asset, false);
   return asset;
 };
 
