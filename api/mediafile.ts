@@ -29,3 +29,8 @@ export const MediafileRequest = async (payload: payloadType): Promise<MediafileR
   const response = await Axios.post<MediafileRequestType>(Paths.mediafile, payload)
   return response.data
 }
+
+export const mediaFileTypes = async () => {
+  const response = await Axios.get(Paths.mediaFileType)
+  return response.data
+}
