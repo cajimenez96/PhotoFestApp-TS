@@ -5,7 +5,7 @@ import { FLASHOFF, MediaTypePictureId, MediaTypeVideoId, PICTURE, VIDEO } from '
 import { cameraIcons } from '../../common/icons';
 import { globalStyles } from '../../styles/globalStyles';
 import CameraButton from '../../components/CameraButton';
-import { pickImage, takePicture, takeVideo } from '../../helpers/cameraActions';
+import { pauseStartVideo, pickImage, takePicture, takeVideo } from '../../helpers/cameraActions';
 import * as MediaLibrary from 'expo-media-library';
 import { CameraActionButtonProps, CameraScreenProps, mediaTypeId } from './CameraScreen.type';
 import ModalPreview from '../../components/ModalPreview/ModalPreview';
@@ -51,7 +51,8 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const [isFocusing, setIsFocusing] = useState(false);
 
   const [mediaIds, setMediaIds] = useState<mediaTypeId>({ pictureId: "", videoId: "" });
-
+  const [pausedRecording, setPausedRecording] = useState<boolean>(false);
+  
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
       setIsConnectedToWifi(state.isConnected);
@@ -112,7 +113,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
     if (mode === "picture") {
       loading ? undefined : takePicture(setLoading, cameraref, setPicture, flash)
     } else {
-      loading ? undefined : takeVideo(cameraref, isRecording, setIsRecording, setLoading, setVideo, flash, setTimer, setIntervalId, intervalId)
+      loading ? undefined : takeVideo(cameraref, isRecording, setIsRecording, setLoading, setVideo, flash, setTimer, setIntervalId, intervalId, setPausedRecording)
     }
   }
 
@@ -224,7 +225,6 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
       </View>
       <View style={styles.buttonContainer}>
         <View style={styles.buttonSup}>
-
           <CameraButton
             source={cameraIcons.galleryIcon}
             typeDispatch={false}
@@ -247,6 +247,17 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
             disableImage={isRecording}
             uiStyle={uiStyle}
           />
+        {
+          isRecording &&
+          <View style={styles.pauseResume}>
+            <CameraButton
+              onPress={() => pauseStartVideo(pausedRecording, setPausedRecording, cameraref, intervalId, setIntervalId, setTimer)}
+              source={!pausedRecording ? cameraIcons.pauseVideo : cameraIcons.playVideo}
+              typeDispatch={false}
+              uiStyle={uiStyle}
+            />
+          </View>
+        }
         </View>
 
         <View style={[styles.buttonBot, isRecording && styles.isRecordingOpacity]}>
@@ -299,6 +310,10 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
 export default CameraScreen;
 
 const styles = StyleSheet.create({
+  pauseResume:{
+    position: "absolute",
+    right: 30,
+  },
   timerPortrait: {
     width: "100%",
     position: "absolute",
