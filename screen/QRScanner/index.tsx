@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Vibration, Alert } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Vibration, Alert, SafeAreaView, TextInput } from "react-native";
 import { globalStyles } from "../../styles/globalStyles";
 import { cameraIcons } from "../../common/icons";
-import { QRScannerData } from "./QRScanner.data";
+import { INPUT, QRScannerData } from "./QRScanner.data";
 import Camera from "../../components/Camera";
 import { eventUserAssociation } from "./require";
 import Popup from "../../components/Popup";
-import Input from "../../components/Input";
 import Button from "../../components/Button";
-import { isValidEmail } from "../../common/validations";
+import { isValidEmail, isValidName } from "../../common/validations";
 import NetInfo from '@react-native-community/netinfo';
 import { QRScannerProps } from "./QRScanner.type";
 import { colors } from "../../common/colors";
@@ -22,6 +21,8 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [eventId, setEventId] = useState<string>("");
   const [newEmail, setNewEmail] = useState<string>("");
+  const [newName, setNewName] = useState<string>("");
+  const [newLastName, setNewLastName] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   const handleFlash = () => {
@@ -70,19 +71,29 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
       ]);
       return;
     }
-    
+
     setOpenModal(true);
   };
-  
+
   const uploadUserEvent = async () => {
     if (!isValidEmail(newEmail)) {
-      setError("Por favor, ingrese un correo electrónico válido.");
+      setError(QRScannerData.emailError);
+      return;
+    }
+    if(!isValidName(newName)) {
+      setError(QRScannerData.nameError);
+      return;
+    }
+    if(!isValidName(newLastName)) {
+      setError(QRScannerData.lastNameError);
       return;
     }
 
     const data = {
       EventID: eventId,
-      UserName: newEmail
+      UserName: newEmail.trim(),
+      Name: newName.trim(),
+      LastName: newLastName.trim(),
     }
     await eventUserAssociation(data, setOpenModal, setLoading, setError, setUserLogued)
   }
@@ -98,14 +109,34 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
       <Popup>
         <View>
           <Text style={styles.title}>
-            {`Para continuar, por favor ingrese su correo electronico`}
+            {`Para continuar, por favor ingrese los siguientes datos:`}
           </Text>
-          <Input
-            placeholder="Ingrese su correo"
-            style={styles.input}
-            onChange={setNewEmail}
-          />
-
+          <SafeAreaView>
+            <TextInput
+              autoComplete="email"
+              style={[styles.input]}
+              onChangeText={setNewEmail}
+              placeholder={INPUT.EMAIL}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <TextInput
+              autoComplete="name"
+              style={[styles.input]}
+              onChangeText={setNewName}
+              placeholder={INPUT.NAME}
+              keyboardType="default"
+              autoCapitalize="words"
+            />
+            <TextInput
+              autoComplete="additional-name"
+              style={[styles.input]}
+              onChangeText={setNewLastName}
+              placeholder={INPUT.LASTNAME}
+              keyboardType="default"
+              autoCapitalize="words"
+            />
+          </SafeAreaView>
           {error && (
             <Text style={styles.textError}>{error}</Text>
           )}
@@ -130,7 +161,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
   }
 
   return (
-    <View style={[globalStyles.container, {backgroundColor: colors.black}]}>
+    <View style={[globalStyles.container, { backgroundColor: colors.black }]}>
       {scanned ? (
         <View style={[globalStyles.container, globalStyles.centered]}>
           <ActivityIndicator size="large" color={colors.white} />
@@ -142,7 +173,7 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
             torch={torch}
             codeScanner={codeScanner}
           />
-          <View style={[styles.flashView,  globalStyles.padding]}>
+          <View style={[styles.flashView, globalStyles.padding]}>
             <TouchableOpacity onPress={handleFlash}>
               <Image source={torch ? cameraIcons.flashImg : cameraIcons.flashOffImg} style={globalStyles.icon} />
             </TouchableOpacity>
@@ -166,11 +197,11 @@ const QRScanner = ({ setUserLogued }: QRScannerProps) => {
 export default QRScanner;
 
 const styles = StyleSheet.create({
-  flashView:{
+  flashView: {
     position: "absolute",
     alignItems: "flex-end",
     width: "100%",
-  
+
   },
   camera: {
     position: "absolute",
@@ -220,12 +251,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lightBlack,
   },
   input: {
-    marginTop: 80,
-    marginBottom: 90,
+    padding: 2,
+    paddingLeft: 7,
+    borderBottomWidth: 1.5,
+    borderColor: colors.black,
+    marginTop: 10,
+    marginBottom: 20,
   },
   textError: {
     color: colors.red,
-    bottom: 70,
+    bottom: 5,
   },
 });
 
