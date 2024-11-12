@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, ViewStyle } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, ViewStyle, BackHandler } from 'react-native';
 import useCamera from '../../hooks/useCamera';
 import { FLASHOFF, MediaTypePictureId, MediaTypeVideoId, PICTURE, VIDEO } from '../../common/constants';
 import { cameraIcons } from '../../common/icons';
@@ -52,6 +52,21 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
 
   const [mediaIds, setMediaIds] = useState<mediaTypeId>({ pictureId: "", videoId: "" });
   const [pausedRecording, setPausedRecording] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (picture || video) {
+        setPicture('');
+        setVideo('');
+        return true; 
+      }
+      return false; 
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+    return () => backHandler.remove();
+  }, [picture, video]);
   
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
