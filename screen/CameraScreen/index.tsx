@@ -134,8 +134,8 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
 
   const handlePickImage = async () => {
     await pickImage(
-      setUploadStatus,
-      mediaIds
+      setPicture,
+      setVideo,
     );
   };
 
