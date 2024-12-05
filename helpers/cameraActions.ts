@@ -170,8 +170,8 @@ export const pauseStartVideo = async (
 };
 
 export const pickImage = async (
-  setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
-  mediaIds: mediaTypeId
+  setPicture: React.Dispatch<React.SetStateAction<string>>,
+  setVideo: React.Dispatch<React.SetStateAction<string>>,
 ) => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -195,13 +195,13 @@ export const pickImage = async (
   if (!result.canceled) {
     for (const asset of result.assets) {
       if (asset.uri && asset.fileName) {
-        const downloadURL = await uploadFile(asset.uri, asset.fileName);
-        if (downloadURL) {
-          await sendToBackend(downloadURL, asset.width, asset.height, asset.type === VIDEO ? mediaIds.videoId : mediaIds.pictureId, setUploadStatus)
+        if (asset.type === VIDEO) {
+          setVideo(asset.uri);
+        } else {
+          setPicture(asset.uri)
         }
       }
     }
-    resetUploadStatus(setUploadStatus)
   }
 }
 
