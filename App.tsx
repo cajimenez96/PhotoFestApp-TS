@@ -13,8 +13,12 @@ import PermissionModal from './components/PermissionModal';
 import { View } from 'react-native';
 import { Audio } from 'expo-av';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 SplashScreen.preventAutoHideAsync();
+
+const Stack = createStackNavigator();
 
 const App = () => {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
@@ -87,28 +91,33 @@ const App = () => {
     );
   }
 
-  const renderContent = () => {
-    if (onboardingStatus === 'true') {
-      return userLogued ? <CameraScreen setUserLogued={setUserLogued} /> : <QRScanner setUserLogued={setUserLogued} />;
-    }
-
-    return <Onboarding setCompletedOnboarding={setOnboardingStatus} />;
-  };
-
   if (!appIsReady) {
     return null;
   }
 
   return (
-    <GestureHandlerRootView>
-      <View
-        style={{ flex: 1 }}
-        onLayout={onLayoutRootView}
-      >
-        <StatusBar hidden />
-        {renderContent()}
-      </View>
-    </GestureHandlerRootView>
+    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {onboardingStatus === 'true' ? (
+          userLogued ? (
+            <Stack.Screen name="Camera">
+              {() => <CameraScreen setUserLogued={setUserLogued} />}
+            </Stack.Screen>
+          ) : (
+            <Stack.Screen name="QRScanner">
+              {() => <QRScanner setUserLogued={setUserLogued} />}
+            </Stack.Screen>
+          )
+        ) : (
+          <Stack.Screen name="Onboarding">
+            {() => <Onboarding setCompletedOnboarding={setOnboardingStatus} />}
+          </Stack.Screen>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+    <StatusBar hidden />
+  </GestureHandlerRootView>
   );
 }
 
