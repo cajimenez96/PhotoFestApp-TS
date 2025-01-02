@@ -21,7 +21,12 @@
     },
     "production": {
       "android": {
-        "buildType": "apk"
+        "environment": "production",
+        "buildType": "app-bundle",
+        "distribution": "store",
+        "env": {
+          "EXPO_UPDATES_CHANNEL": "production"
+        }
       }
     }
   }

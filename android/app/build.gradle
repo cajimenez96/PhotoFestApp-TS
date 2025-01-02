@@ -140,6 +140,7 @@ android {
         }
     }
     packagingOptions {
+        exclude "lib/riscv64/**"
         jniLibs {
             useLegacyPackaging (findProperty('expo.useLegacyPackaging')?.toBoolean() ?: false)
         }
