@@ -1,7 +1,11 @@
 {
   "expo": {
-    "name": "FestBook",
-    "slug": "PhotoFestApp-TS",
+    "name": "Guisky",
+    "slug": "guiskyapp",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,7 +29,8 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.MANAGE_EXTERNAL_STORAGE"
       ],
-      "package": "com.synergy.photofest"
+      "package": "com.synergyit.guiskyapp",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -49,8 +54,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "2817ff6f-2785-40f1-a899-25f4e008bda1"
+        "projectId": "429c5d50-2178-4ed0-bb21-c3459bd0865a"
       }
-    }
+    },
+    "owner": "synergyit"
   }
 }
