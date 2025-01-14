@@ -1,6 +1,5 @@
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
-import { uploadFile } from '../firebase/firebase.config';
 import { sendToBackend } from '../screen/CameraScreen/require';
 import { Dispatch, RefObject, SetStateAction } from 'react';
 import { PICTURE, VIDEO } from '../common/constants';
@@ -45,10 +44,11 @@ export const uploadMedia = async (
   if (!asset) return
   const { width, height } = adjustDimensions(asset.width, asset.height, isPhoto, orientation);
 
-  const downloadURL = await uploadFile(mediaUri, name);
-  if (downloadURL) {
-    await sendToBackend(downloadURL, width, height, isPhoto ? mediaIds.pictureId : mediaIds.videoId, setUploadStatus)
-  }
+  const response = await fetch(mediaUri);
+  const blobFile = await response.blob();
+
+  await sendToBackend(blobFile, width, height, isPhoto ? mediaIds.pictureId : mediaIds.videoId, setUploadStatus)
+
   resetUploadStatus(setUploadStatus)
 };
 

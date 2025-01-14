@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 5.9.3"
+    "version": ">= 5.9.3",
+    "appVersionSource": "local"
   },
   "build": {
     "preview": {
@@ -14,14 +15,20 @@
       }
     },
     "preview3": {
-      "developmentClient": true
+      "developmentClient": true,
+      "distribution": "internal"
     },
     "preview4": {
       "distribution": "internal"
     },
     "production": {
       "android": {
-        "buildType": "apk"
+        "environment": "production",
+        "buildType": "app-bundle",
+        "distribution": "store",
+        "env": {
+          "EXPO_UPDATES_CHANNEL": "production"
+        }
       }
     }
   }
