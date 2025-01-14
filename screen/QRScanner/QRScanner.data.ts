@@ -4,8 +4,8 @@ export const QRScannerData = {
   qrError: "QR invalido",
   userError: "Usuario y/o contraseña incorrecto, intente nuevamente.",
   emailError: "Por favor, ingrese un correo electrónico válido.",
-  nameError: "El nombre debe tener un máximo de 50 caracteres",
-  lastNameError: "El apellido debe tener un máximo de 50 caracteres",
+  nameError: "El nombre debe tener entre 2 y 50 caracteres sin puntos, comas, guiones o caracteres especiales.",
+  lastNameError: "El apellido debe tener entre 2 y 50 caracteres sin puntos, comas, guiones o caracteres especiales.",
 }
 
 export const INPUT = {
