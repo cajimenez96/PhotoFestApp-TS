@@ -4,7 +4,7 @@ import Axios from "../lib/axios"
 type payloadType = {
   mediaFileData: {
     EventID: string;
-    MediaURL: string;
+    Blob: Blob;
     UserID: string;
     Width: string;
     height: string;
@@ -14,7 +14,7 @@ type payloadType = {
 
 type MediafileRequestType = {
   EventID: string;
-  MediaURL: string;
+  Blob: Blob;
   UserID: string;
   Width: string;
   MediaTypeID: string;
