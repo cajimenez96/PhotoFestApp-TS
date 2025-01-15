@@ -3,14 +3,14 @@ import { Alert } from "react-native"
 import { getAsyncStorage, setAsyncStorage } from "../../helpers/helper";
 import { EVENT_ID, USER_ID, TOKEN, SUCESSUPLOAD } from "../../common/constants";
 
-export async function sendToBackend(blobFile: Blob, width: number, height: number, mediaTypeId: string, setUploadStatus: React.Dispatch<React.SetStateAction<string>>) {
+export async function sendToBackend(downloadURL: string, width: number, height: number, mediaTypeId: string, setUploadStatus: React.Dispatch<React.SetStateAction<string>>) {
   const userId = await getAsyncStorage(USER_ID) ?? '';
   const eventID = await getAsyncStorage(EVENT_ID) ?? '';
 
   const payload = {
     mediaFileData: {
       EventID: eventID,
-      Blob: blobFile,
+      MediaURL: downloadURL,
       UserID: userId,
       Width: `${width}px`,
       height: `${height}px`,
@@ -29,7 +29,7 @@ export async function sendToBackend(blobFile: Blob, width: number, height: numbe
             text: 'Aceptar',
           },
         ]);
-      }
+      } 
     })
 }
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
 import { View, Text, Image, StyleSheet, Touchable, TouchableOpacity } from 'react-native'
@@ -134,7 +133,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   arrow: {
-    width: 48,
-    height: 48,
+    width: 47,
+    height: 47,
   },
 });
