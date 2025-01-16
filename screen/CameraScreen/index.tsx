@@ -19,6 +19,7 @@ import { Animated, Easing } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 import { formatTime, getAsyncStorage } from '../../helpers/helper';
+import ActionModal from '../../components/ActionsModal';
 
 const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   return (
@@ -35,6 +36,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
   const [mediaLibraryPermission] = MediaLibrary.usePermissions();
   const [uploadStatus, setUploadStatus] = useState<string>('');
   const [logoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
+  const [actionModal, setActionModal] = useState<boolean>(false);
 
   const [picture, setPicture] = useState<string>('');
   const [video, setVideo] = useState<string>('');
@@ -222,8 +224,8 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
       }
       <View style={styles.flashView}>
         <CameraButton
-          onPress={isRecording ? () => { } : () => setLogoutModalVisible(true)}
-          source={cameraIcons.exit}
+          onPress={isRecording ? () => { } : () => setActionModal(true)}
+          source={cameraIcons.actionsIcon}
           typeDispatch={false}
           disableImage={isRecording}
           uiStyle={uiStyle}
@@ -285,6 +287,10 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
             img={mode === PICTURE ? cameraIcons.pictureModeDark : cameraIcons.pictureMode}
           />
         </View>
+      </View>
+
+      <View>
+        <ActionModal modalVisible={actionModal} setActionModal={setActionModal} setLogoutModalVisible={setLogoutModalVisible}/>
       </View>
 
       {uploadStatus && (
