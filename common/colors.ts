@@ -3,7 +3,8 @@ export const colors = {
   greyB4: '#B4B4B4',
   greyD2: '#D2D2D2',
   greyD9: '#D9D9D9',
-  
+  transparentGrey: "#9d9d9d7c",
+
   black: '#000000',
   black06: '#060606',
   black09: '#090909',
