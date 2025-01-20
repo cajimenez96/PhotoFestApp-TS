@@ -102,7 +102,7 @@ const App = () => {
         {onboardingStatus === 'true' ? (
           userLogued ? (
             <Stack.Screen name="Camera">
-              {() => <CameraScreen setUserLogued={setUserLogued} />}
+              {() => <CameraScreen setUserLogued={setUserLogued} setOnboardingStatus={setOnboardingStatus} />}
             </Stack.Screen>
           ) : (
             <Stack.Screen name="QRScanner">
