@@ -3,8 +3,9 @@ import { View, Modal, StyleSheet, TouchableWithoutFeedback } from 'react-native'
 import ButtonGeneral from '../ButtonGeneral';
 import { colors } from '../../common/colors';
 import { ActionModalProps } from './ActionsModal.types';
+import { handleOnboarding } from '../../helpers/helper';
 
-const ActionModal = ({ modalVisible, setActionModal, setLogoutModalVisible }: ActionModalProps) => {
+const ActionModal = ({ modalVisible, setActionModal, setLogoutModalVisible, setOnboardingStatus }: ActionModalProps) => {
 
   const handleAction = (action: () => void) => {
     return () => {
@@ -20,11 +21,11 @@ const ActionModal = ({ modalVisible, setActionModal, setLogoutModalVisible }: Ac
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
 
+              <ButtonGeneral style={styles.button} stylePress={styles.buttonPress} onPress={handleAction(() => handleOnboarding(setOnboardingStatus, "false"))}>
+                Volver a ver la Introducción
+              </ButtonGeneral>
               <ButtonGeneral style={styles.button} stylePress={styles.buttonPress} onPress={handleAction(() => setLogoutModalVisible(true))}>
                 Cerrar sesion
-              </ButtonGeneral>
-              <ButtonGeneral style={styles.button} stylePress={styles.buttonPress}>
-                Abrir pagina web
               </ButtonGeneral>
 
             </View>
