@@ -6,7 +6,8 @@ export type CameraActionButtonProps = {
 }
 
 export type CameraScreenProps = {
-  setUserLogued: React.Dispatch<React.SetStateAction<boolean>>
+  setUserLogued: React.Dispatch<React.SetStateAction<boolean>>;
+  setOnboardingStatus: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export type mediaTypeId = {

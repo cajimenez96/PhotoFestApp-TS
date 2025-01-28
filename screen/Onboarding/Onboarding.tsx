@@ -7,6 +7,7 @@ import { globalStyles } from '../../styles/globalStyles';
 import { cameraIcons } from '../../common/icons';
 import { OnboardingButtonProps, OnboardingProps } from './Onboarding.type';
 import { colors } from '../../common/colors';
+import { handleOnboarding } from '../../helpers/helper';
 
 const OnboardingButton = ({ OnPress, content, index }: OnboardingButtonProps) => {
   return (
@@ -21,23 +22,13 @@ const OnboardingButton = ({ OnPress, content, index }: OnboardingButtonProps) =>
 }
 
 const Onboarding = ({ setCompletedOnboarding }: OnboardingProps) => {
+  
   const [index, setIndex] = useState(0);
 
-  const completeOnboarding = async () => {
-    try {
-      await AsyncStorage.setItem('onboardingCompleted', 'true');
-      setCompletedOnboarding("true");
-    } catch (error) {
-      console.error('Error saving onboarding status:', error);
-    }
-  };
-
   const handleNextOnboarding = () => {
-    if (StepOnboarding.length - 1 === index) return completeOnboarding();
-
+    if (StepOnboarding.length - 1 === index) return handleOnboarding(setCompletedOnboarding, "true");
     setIndex(index + 1);
   };
-
 
   return (
     <View style={[globalStyles.container, styles.container]}>

@@ -26,3 +26,12 @@ export const formatTime = (time: number) => {
 };
 
 
+export const handleOnboarding = async (setOnboardingStatus: (status: string) => void, state: string) => {
+  try {
+    await AsyncStorage.setItem('onboardingCompleted', state);
+    setOnboardingStatus(state);
+  } catch (error) {
+    console.error('Error saving onboarding status:', error);
+  }
+};
+

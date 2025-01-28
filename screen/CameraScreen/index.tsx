@@ -29,7 +29,7 @@ const CameraActionButton = ({ onPress, img }: CameraActionButtonProps) => {
   )
 }
 
-const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
+const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps) => {
   const { facing, toggleFlash, flash, toggleCameraFacing, toggleCameraModePhoto, toggleCameraModeVideo, mode, isRecording, setIsRecording, setIsConnectedToWifi, isConnectedToWifi, timer, setTimer, intervalId, setIntervalId } = useCamera();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -290,7 +290,7 @@ const CameraScreen = ({ setUserLogued }: CameraScreenProps) => {
       </View>
 
       <View>
-        <ActionModal modalVisible={actionModal} setActionModal={setActionModal} setLogoutModalVisible={setLogoutModalVisible}/>
+        <ActionModal modalVisible={actionModal} setActionModal={setActionModal} setLogoutModalVisible={setLogoutModalVisible} setOnboardingStatus={setOnboardingStatus}/>
       </View>
 
       {uploadStatus && (
