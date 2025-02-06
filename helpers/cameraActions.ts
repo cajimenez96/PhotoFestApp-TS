@@ -9,6 +9,15 @@ import NetInfo from '@react-native-community/netinfo';
 import { Camera } from 'react-native-vision-camera';
 import { mediaTypeId } from '../screen/CameraScreen/CameraScreen.type';
 
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob); 
+    reader.onloadend = () => resolve(reader.result as string); 
+    reader.onerror = reject;
+  });
+};
+
 const saveToLibrary = async (filename: string) => {
   const asset = await MediaLibrary.createAssetAsync(filename);
   return asset;
@@ -35,21 +44,24 @@ export const uploadMedia = async (
   const isPhoto = type === PICTURE;
   const name = isPhoto ? `photo_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
   const filename = FileSystem.documentDirectory + name;
+
   await FileSystem.copyAsync({ from: mediaUri, to: filename });
   const asset = await saveToLibrary(filename);
 
   const connection = await NetInfo.fetch();
   if (!connection.isConnected) return;
 
-  if (!asset) return
+  if (!asset) return;
   const { width, height } = adjustDimensions(asset.width, asset.height, isPhoto, orientation);
 
   const response = await fetch(mediaUri);
   const blobFile = await response.blob();
 
-  await sendToBackend(blobFile, width, height, isPhoto ? mediaIds.pictureId : mediaIds.videoId, setUploadStatus)
+  const blobBase64 = await blobToBase64(blobFile);
 
-  resetUploadStatus(setUploadStatus)
+  await sendToBackend(blobBase64, width, height, isPhoto ? mediaIds.pictureId : mediaIds.videoId, setUploadStatus)
+
+  resetUploadStatus(setUploadStatus);
 };
 
 export const takePicture = async (
