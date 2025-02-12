@@ -1,6 +1,6 @@
 import { View, Text, Modal, StyleSheet, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { cameraIcons } from '../../common/icons'
+import { cameraIcons, eventIcons } from '../../common/icons'
 import { FlatList } from 'react-native-gesture-handler';
 import { ResizeMode, Video } from 'expo-av';
 import { Media } from '../../screen/EventGallery/EventGallery.type';
@@ -64,7 +64,7 @@ const GalleryModal = ({ setModalVisible, modalVisible, data, selectedIndex }: Ga
       <View style={styles.container}>
         <View style={styles.navbar}>
           <TouchableOpacity onPress={() => setModalVisible(false)}>
-            <Image source={cameraIcons.close} style={styles.closeModal} />
+            <Image source={eventIcons.close} style={styles.closeModal} />
           </TouchableOpacity>
         </View>
 

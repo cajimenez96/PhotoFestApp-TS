@@ -27,4 +27,5 @@ export const cameraIcons = {
 
 export const eventIcons = {
   caution: require('../assets/eventGallery/caution.png'),
+  close: require('../assets/eventGallery/close.png'),
 }
