@@ -21,5 +21,10 @@ export const cameraIcons = {
   exit: require('../assets/picture/exit.png'),
   pauseVideo: require('../assets/picture/pauseVideo.png'),
   playVideo: require('../assets/picture/playVideo.png'),
-  actionsIcon: require('../assets/picture/actionsIcon.png')
+  actionsIcon: require('../assets/picture/actionsIcon.png'),
+  backArrow: require('../assets/picture/back.png')
 };
+
+export const eventIcons = {
+  caution: require('../assets/eventGallery/caution.png'),
+}
