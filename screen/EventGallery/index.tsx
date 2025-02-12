@@ -8,7 +8,7 @@ import { Media } from './EventGallery.type';
 import { colors } from '../../common/colors';
 import { cameraIcons, eventIcons } from '../../common/icons';
 import { ResizeMode, Video } from 'expo-av';
-import EventModal from '../../components/eventModal/EventModal';
+import GalleryModal from '../../components/galleryModal/GalleryModal';
 
 const EventGallery = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -85,7 +85,7 @@ const EventGallery = () => {
         />
       )}
 
-      <EventModal
+      <GalleryModal
         setModalVisible={setModalVisible}
         modalVisible={modalVisible}
         data={data}
