@@ -1,13 +1,12 @@
-import { View, Text, Modal, StyleSheet, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native'
+import { View, Modal, StyleSheet, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { cameraIcons, eventIcons } from '../../common/icons'
+import { eventIcons } from '../../common/icons'
 import { FlatList } from 'react-native-gesture-handler';
 import { ResizeMode, Video } from 'expo-av';
 import { Media } from '../../screen/EventGallery/EventGallery.type';
 import { GalleryModalType } from './GalleryModal.types';
 import { parseSize } from '../../helpers/helper';
 import { colors } from '../../common/colors';
-import { BackHandler } from 'react-native';
 
 const { width, height } = Dimensions.get("window");
 
@@ -60,7 +59,7 @@ const GalleryModal = ({ setModalVisible, modalVisible, data, selectedIndex }: Ga
   };
 
   return (
-    <Modal visible={modalVisible} transparent statusBarTranslucent  onRequestClose={() => setModalVisible(false)}>
+    <Modal visible={modalVisible} transparent statusBarTranslucent onRequestClose={() => setModalVisible(false)}>
       <View style={styles.container}>
         <View style={styles.navbar}>
           <TouchableOpacity onPress={() => setModalVisible(false)}>
