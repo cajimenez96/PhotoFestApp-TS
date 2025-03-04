@@ -18,13 +18,13 @@ const ModalButtons = ({ img, onPress }: ModalButtonsProps) => {
   )
 }
 
-const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus, orientation, mediaIds }: ModalPreviewProps) => {
+const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus, orientation, mediaIds, isPicker, assetSize }: ModalPreviewProps) => {
   const videoRef = useRef<Video>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [controlsVisible, setControlsVisible] = useState(true);
-  
+
   useEffect(() => {
     if (mediaType === VIDEO && videoRef.current) {
       videoRef.current.setOnPlaybackStatusUpdate(handlePlaybackStatusUpdate);
@@ -33,7 +33,7 @@ const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus, orientation
 
   const confirmMedia = async () => {
     setMedia("");
-    await uploadMedia(media, mediaType === PICTURE ? PICTURE : VIDEO, setUploadStatus, orientation, mediaIds);
+    await uploadMedia(media, mediaType === PICTURE ? PICTURE : VIDEO, setUploadStatus, orientation, mediaIds, isPicker && true, assetSize);
   };
 
   const togglePlayback = async () => {
@@ -75,7 +75,7 @@ const ModalPreview = ({ media, setMedia, mediaType, setUploadStatus, orientation
   };
 
   return (
-    <TouchableOpacity style={[globalStyles.container, {backgroundColor: colors.black,}]} activeOpacity={1} onPress={toggleControls}>
+    <TouchableOpacity style={[globalStyles.container, { backgroundColor: colors.black, }]} activeOpacity={1} onPress={toggleControls}>
       {mediaType === PICTURE ? (
         <Image source={{ uri: media }} style={styles.media} resizeMode="contain" />
       ) : (

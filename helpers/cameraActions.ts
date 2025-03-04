@@ -8,14 +8,15 @@ import * as ImagePicker from "expo-image-picker"
 import NetInfo from '@react-native-community/netinfo';
 import { Camera } from 'react-native-vision-camera';
 import { mediaTypeId } from '../screen/CameraScreen/CameraScreen.type';
+import { assetSizeType } from '../components/ModalPreview/ModalPreview.types';
 
 const blobToBase64 = (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.readAsDataURL(blob); 
-    reader.onloadend = () => resolve(reader.result as string); 
+    reader.readAsDataURL(blob);
+    reader.onloadend = () => resolve(reader.result as string);
     reader.onerror = reject;
-  });
+  });
 };
 
 const saveToLibrary = async (filename: string) => {
@@ -39,24 +40,33 @@ export const uploadMedia = async (
   type: 'picture' | 'video',
   setUploadStatus: React.Dispatch<React.SetStateAction<string>>,
   orientation: number,
-  mediaIds: mediaTypeId
+  mediaIds: mediaTypeId,
+  fromPicker?: boolean,
+  assetSize?: assetSizeType
 ) => {
   const isPhoto = type === PICTURE;
   const name = isPhoto ? `photo_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
   const filename = FileSystem.documentDirectory + name;
 
   await FileSystem.copyAsync({ from: mediaUri, to: filename });
-  const asset = await saveToLibrary(filename);
+
+  let asset;
+  if (!fromPicker) {
+    asset = await saveToLibrary(filename);
+  } else {
+    asset = assetSize
+  }
 
   const connection = await NetInfo.fetch();
   if (!connection.isConnected) return;
 
-  if (!asset) return;
+  if (!asset) return
+
   const { width, height } = adjustDimensions(asset.width, asset.height, isPhoto, orientation);
 
   const response = await fetch(mediaUri);
-  const blobFile = await response.blob();
 
+  const blobFile = await response.blob();
   const blobBase64 = await blobToBase64(blobFile);
 
   await sendToBackend(blobBase64, width, height, isPhoto ? mediaIds.pictureId : mediaIds.videoId, setUploadStatus)
@@ -69,9 +79,10 @@ export const takePicture = async (
   cameraRef: RefObject<Camera>,
   setPicture: React.Dispatch<React.SetStateAction<string>>,
   flash: "on" | "off" | "auto" | undefined,
+  setIsPicker: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   setLoading(true);
-
+  setIsPicker(false)
   if (cameraRef.current) {
     try {
       const picture = await cameraRef.current.takePhoto({
@@ -100,11 +111,13 @@ export const takeVideo = async (
   setIntervalId: React.Dispatch<React.SetStateAction<number | null>>,
   intervalId: number | null,
   setPausedRecording: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsPicker: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   setLoading(true);
   setTimeout(() => {
     setLoading(false);
   }, 1000);
+  setIsPicker(false)
 
   if (cameraRef.current) {
     try {
@@ -184,6 +197,8 @@ export const pauseStartVideo = async (
 export const pickImage = async (
   setPicture: React.Dispatch<React.SetStateAction<string>>,
   setVideo: React.Dispatch<React.SetStateAction<string>>,
+  setIsPicker: React.Dispatch<React.SetStateAction<boolean>>,
+  setAssetSize: React.Dispatch<React.SetStateAction<assetSizeType>>
 ) => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -209,9 +224,12 @@ export const pickImage = async (
       if (asset.uri && asset.fileName) {
         if (asset.type === VIDEO) {
           setVideo(asset.uri);
+          setAssetSize({ width: asset.width, height: asset.height })
         } else {
           setPicture(asset.uri)
+          setAssetSize({ width: asset.width, height: asset.height })
         }
+        setIsPicker(true)
       }
     }
   }

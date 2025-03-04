@@ -40,6 +40,8 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
 
   const [picture, setPicture] = useState<string>('');
   const [video, setVideo] = useState<string>('');
+  const [isPicker, setIsPicker] = useState<boolean>(false);
+  const [assetSize, setAssetSize] = useState({ width: 0, height: 0 })
 
   const cameraref = useRef<Camera>(null)
   const device = useCameraDevice(facing)
@@ -60,16 +62,16 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
       if (picture || video) {
         setPicture('');
         setVideo('');
-        return true; 
+        return true;
       }
-      return false; 
+      return false;
     };
 
     const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
 
     return () => backHandler.remove();
   }, [picture, video]);
-  
+
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
       setIsConnectedToWifi(state.isConnected);
@@ -128,9 +130,9 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
 
   const pictureOrVideo = () => {
     if (mode === "picture") {
-      loading ? undefined : takePicture(setLoading, cameraref, setPicture, flash)
+      loading ? undefined : takePicture(setLoading, cameraref, setPicture, flash, setIsPicker)
     } else {
-      loading ? undefined : takeVideo(cameraref, isRecording, setIsRecording, setLoading, setVideo, flash, setTimer, setIntervalId, intervalId, setPausedRecording)
+      loading ? undefined : takeVideo(cameraref, isRecording, setIsRecording, setLoading, setVideo, flash, setTimer, setIntervalId, intervalId, setPausedRecording, setIsPicker)
     }
   }
 
@@ -138,6 +140,8 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
     await pickImage(
       setPicture,
       setVideo,
+      setIsPicker,
+      setAssetSize
     );
   };
 
@@ -154,6 +158,8 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
       setUploadStatus={setUploadStatus}
       orientation={orientation}
       mediaIds={mediaIds}
+      isPicker={isPicker}
+      assetSize={assetSize}
     />
   }
 
@@ -165,6 +171,8 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
       setUploadStatus={setUploadStatus}
       orientation={orientation}
       mediaIds={mediaIds}
+      isPicker={isPicker}
+      assetSize={assetSize}
     />
   }
 
@@ -264,17 +272,17 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
             disableImage={isRecording}
             uiStyle={uiStyle}
           />
-        {
-          isRecording &&
-          <View style={styles.pauseResume}>
-            <CameraButton
-              onPress={() => pauseStartVideo(pausedRecording, setPausedRecording, cameraref, intervalId, setIntervalId, setTimer)}
-              source={!pausedRecording ? cameraIcons.pauseVideo : cameraIcons.playVideo}
-              typeDispatch={false}
-              uiStyle={uiStyle}
-            />
-          </View>
-        }
+          {
+            isRecording &&
+            <View style={styles.pauseResume}>
+              <CameraButton
+                onPress={() => pauseStartVideo(pausedRecording, setPausedRecording, cameraref, intervalId, setIntervalId, setTimer)}
+                source={!pausedRecording ? cameraIcons.pauseVideo : cameraIcons.playVideo}
+                typeDispatch={false}
+                uiStyle={uiStyle}
+              />
+            </View>
+          }
         </View>
 
         <View style={[styles.buttonBot, isRecording && styles.isRecordingOpacity]}>
@@ -290,7 +298,7 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
       </View>
 
       <View>
-        <ActionModal modalVisible={actionModal} setActionModal={setActionModal} setLogoutModalVisible={setLogoutModalVisible} setOnboardingStatus={setOnboardingStatus}/>
+        <ActionModal modalVisible={actionModal} setActionModal={setActionModal} setLogoutModalVisible={setLogoutModalVisible} setOnboardingStatus={setOnboardingStatus} />
       </View>
 
       {uploadStatus && (
@@ -300,9 +308,7 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
         </View>
       )
       }
-      <View
-        style={styles.modalContainer}
-      >
+      <View style={styles.modalContainer}>
         <ConfirmationModal
           modalVisible={logoutModalVisible}
           setModalVisible={setLogoutModalVisible}
@@ -331,7 +337,7 @@ const CameraScreen = ({ setUserLogued, setOnboardingStatus }: CameraScreenProps)
 export default CameraScreen;
 
 const styles = StyleSheet.create({
-  pauseResume:{
+  pauseResume: {
     position: "absolute",
     right: 30,
   },
