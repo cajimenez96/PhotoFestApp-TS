@@ -34,3 +34,10 @@ export const mediaFileTypes = async () => {
   const response = await Axios.get(Paths.mediaFileType)
   return response.data
 }
+
+export const getMediaFiles = async (eventId: string, page: number) => {
+  const response = await Axios.get(Paths.mediafile, {
+    params: { EventID: eventId, page: page }
+  })
+  return response
+}

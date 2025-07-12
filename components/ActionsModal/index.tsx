@@ -4,8 +4,11 @@ import ButtonGeneral from '../ButtonGeneral';
 import { colors } from '../../common/colors';
 import { ActionModalProps } from './ActionsModal.types';
 import { handleOnboarding } from '../../helpers/helper';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../../App';
 
 const ActionModal = ({ modalVisible, setActionModal, setLogoutModalVisible, setOnboardingStatus }: ActionModalProps) => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleAction = (action: () => void) => {
     return () => {
@@ -20,6 +23,9 @@ const ActionModal = ({ modalVisible, setActionModal, setLogoutModalVisible, setO
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
+              <ButtonGeneral style={styles.button} stylePress={styles.buttonPress} onPress={handleAction(() => navigation.navigate('EventGallery'))} >
+                Galeria del Evento
+              </ButtonGeneral>
 
               <ButtonGeneral style={styles.button} stylePress={styles.buttonPress} onPress={handleAction(() => handleOnboarding(setOnboardingStatus, "false"))}>
                 Volver a ver la Introducción

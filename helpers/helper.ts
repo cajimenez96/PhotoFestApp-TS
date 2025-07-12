@@ -25,7 +25,6 @@ export const formatTime = (time: number) => {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-
 export const handleOnboarding = async (setOnboardingStatus: (status: string) => void, state: string) => {
   try {
     await AsyncStorage.setItem('onboardingCompleted', state);
@@ -34,4 +33,15 @@ export const handleOnboarding = async (setOnboardingStatus: (status: string) => 
     console.error('Error saving onboarding status:', error);
   }
 };
+
+export const parseSize = (size: string) => {
+  const numericValue = parseInt(size?.replace("px", ""), 10);
+  return isNaN(numericValue) ? 0 : numericValue;
+};
+
+export type RootStackParamList = {
+  Camera: undefined;
+  EventGallery: undefined;
+};
+
 

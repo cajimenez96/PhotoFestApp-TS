@@ -4,4 +4,5 @@ export const Paths = {
   auth: "/auth",
   user: "/users",
   eventUserAssociation: "/eventUserAssociation",
+  event: "/event"
 }

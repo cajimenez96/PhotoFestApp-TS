@@ -15,6 +15,6 @@ export const colors = {
   transparentBlack05: 'rgba(0, 0, 0, 0.5)',
 
   red: '#ff0000',
-
   lightPurple: '#ad6bcf9c',
+  gold: '#B79A48'
 }

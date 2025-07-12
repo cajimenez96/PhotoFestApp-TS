@@ -15,10 +15,19 @@ import { Audio } from 'expo-av';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import EventGallery from './screen/EventGallery';
+import React from 'react';
 
 SplashScreen.preventAutoHideAsync();
 
-const Stack = createStackNavigator();
+export type RootStackParamList = {
+  Camera: undefined;
+  EventGallery: undefined;
+  QRScanner: undefined;
+  Onboarding: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 const App = () => {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
@@ -97,27 +106,32 @@ const App = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {onboardingStatus === 'true' ? (
-          userLogued ? (
-            <Stack.Screen name="Camera">
-              {() => <CameraScreen setUserLogued={setUserLogued} setOnboardingStatus={setOnboardingStatus} />}
-            </Stack.Screen>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {onboardingStatus === 'true' ? (
+            userLogued ? (
+              <>
+                <Stack.Screen name="Camera">
+                  {() => <CameraScreen setUserLogued={setUserLogued} setOnboardingStatus={setOnboardingStatus} />}
+                </Stack.Screen>
+                <Stack.Screen name="EventGallery">
+                  {() => <EventGallery />}
+                </Stack.Screen>
+              </>
+            ) : (
+              <Stack.Screen name="QRScanner">
+                {() => <QRScanner setUserLogued={setUserLogued} />}
+              </Stack.Screen>
+            )
           ) : (
-            <Stack.Screen name="QRScanner">
-              {() => <QRScanner setUserLogued={setUserLogued} />}
+            <Stack.Screen name="Onboarding">
+              {() => <Onboarding setCompletedOnboarding={setOnboardingStatus} />}
             </Stack.Screen>
-          )
-        ) : (
-          <Stack.Screen name="Onboarding">
-            {() => <Onboarding setCompletedOnboarding={setOnboardingStatus} />}
-          </Stack.Screen>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-    <StatusBar hidden />
-  </GestureHandlerRootView>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+      <StatusBar hidden />
+    </GestureHandlerRootView>
   );
 }
 
