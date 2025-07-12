@@ -37,7 +37,8 @@ export const mediaFileTypes = async () => {
 
 export const getMediaFiles = async (eventId: string, page: number) => {
   const response = await Axios.get(Paths.mediafile, {
-    params: { EventID: eventId, page: page }
+    params: { EventID: eventId, page: page, IsPublished: true, IsSafeContent: true }
   })
+
   return response
 }

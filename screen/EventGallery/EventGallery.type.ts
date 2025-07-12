@@ -8,6 +8,7 @@ export interface Media {
   MediaTypeID: MediaType;
   index: number
   IsPublished: boolean;
+  IsSafeContent: boolean;
   createdAt: string;
   updatedAt: string;
   __v: number;
