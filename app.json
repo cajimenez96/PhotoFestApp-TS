@@ -9,14 +9,19 @@
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "auto",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
+        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
+      },
+      "bundleIdentifier": "com.synergyit.guiskyapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,6 +29,10 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.MANAGE_EXTERNAL_STORAGE",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
         "android.permission.WRITE_EXTERNAL_STORAGE",
@@ -54,9 +63,13 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "429c5d50-2178-4ed0-bb21-c3459bd0865a"
+        "projectId": "617ad484-ca05-4f41-9250-4fa5b36794cc"
       }
     },
-    "owner": "synergyit"
+    "owner": "cajimenez.96",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/617ad484-ca05-4f41-9250-4fa5b36794cc"
+    }
   }
 }
